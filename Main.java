@@ -16,9 +16,11 @@ class Main {
         // read '$x$ $y$' for each point
         sc.next(); // find
         int ci = sc.nextInt();
-        sc.next(); // to
-        int cj = sc.nextInt();
-        sc.next(); // clusters
+        int cj = ci;
+        if (sc.next().equals("to")) { // otherwise, it is clusters
+            cj = sc.nextInt();
+            sc.next(); // clusters
+        }
 
         int n = sc.nextInt();
         sc.next(); // points
