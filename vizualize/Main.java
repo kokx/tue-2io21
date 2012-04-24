@@ -1,6 +1,8 @@
 import java.io.*;
 import java.util.*;
 import java.awt.image.*;
+import java.awt.*;
+import javax.imageio.*;
 
 class Main {
     Scanner sc;
@@ -41,12 +43,26 @@ class Main {
             }
         }
 
-        System.out.println("X min: " + min_x + " max: " + max_x + " size: " + (max_x - min_x));
-        System.out.println("Y min: " + min_y + " max: " + max_y + " size: " + (max_x - min_x));
-
         // now start creating the image
         img = new BufferedImage((max_x - min_x) + 2, (max_y - min_y) + 2, BufferedImage.TYPE_INT_RGB);
 
+        Graphics2D g = img.createGraphics();
+
+        g.setColor(Color.WHITE);
+
+        g.fillRect(0, 0, (max_x - min_x) + 2, (max_y - min_y) + 2);
+
+        g.setColor(Color.BLACK);
+        for (int i = 0; i < points_x.size(); i++) {
+            g.fillRect(points_x.get(i), points_y.get(i), 1, 1);
+        }
+
+        try {
+            File outputfile = new File("temp.png");
+            ImageIO.write(img, "png", outputfile);
+        } catch (IOException e) {
+            System.out.println("Something went wrong");
+        }
     }
 
     public static void main(String args[])
