@@ -23,8 +23,16 @@ class Main {
         int n = sc.nextInt();
         sc.next(); // points
 
+        int[] points_x = new int[n];
+        int[] points_y = new int[n];
+
         for (int i = 0; i < n; i++) {
-            System.out.println(sc.nextInt() + " " + sc.nextInt());
+            points_x[i] = sc.nextInt();
+            points_y[i] = sc.nextInt();
+        }
+
+        for (int i = 0; i < n; i++) {
+            System.out.println(points_x[i] + " " + points_y[i] + " " + (i % cj));
         }
     }
 
