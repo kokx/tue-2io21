@@ -32,15 +32,21 @@ class Generator {
     }
 
     /**
+     * Get the generated field.
+     */
+    public Field getField()
+    {
+        return field;
+    }
+
+    /**
      * Generate.
      */
-    public Field generate(int noise_density, int clusters, int cluster_size, int cluster_density)
+    public void generate(int noise_density, int clusters, int cluster_size, int cluster_density)
     {
         generateClusters(clusters, cluster_size, cluster_density);
 
         createUniformNoise(noise_density);
-
-        return field;
     }
 
     /**
@@ -49,10 +55,23 @@ class Generator {
     public void generateClusters(int clusters, int size, int density)
     {
         for (int i = 0; i < clusters; i++) {
-            int mean_x = offset_x + random.nextInt(width - (2 * size)) + size;
-            int mean_y = offset_y + random.nextInt(height - (2 * size)) + size;
+            int mean_x = random.nextInt(width - (2 * size)) + size;
+            int mean_y = random.nextInt(height - (2 * size)) + size;
 
             createUniformCluster(mean_x, mean_y, size, density);
+        }
+    }
+
+    /**
+     * Generate multiple noise points with the same size and density.
+     */
+    public void generateGaussianNoise(int clusters, int size, int density)
+    {
+        for (int i = 0; i < clusters; i++) {
+            int mean_x = random.nextInt(width - (2 * size)) + size;
+            int mean_y = random.nextInt(height - (2 * size)) + size;
+
+            createGaussianNoise(mean_x, mean_y, size, density);
         }
     }
 
@@ -61,6 +80,9 @@ class Generator {
      */
     public void createUniformCluster(int mean_x, int mean_y, int r, int density)
     {
+        mean_x += offset_x;
+        mean_y += offset_y;
+
         for (int i = 0; i < density; i++) {
             int x;
             int y;
@@ -74,15 +96,20 @@ class Generator {
     }
 
     /**
-     * Create a cluster using a normal distribution.
+     * Create noise using a normal distribution.
      */
-    public void createGaussianCluster(int mean_x, int mean_y, int r, int density)
+    public void createGaussianNoise(int mean_x, int mean_y, int r, int density)
     {
+        mean_x += offset_x;
+        mean_y += offset_y;
+
         for (int i = 0; i < density; i++) {
             int x;
             int y;
-            x = mean_x - (int) (r * random.nextGaussian());
-            y = mean_y - (int) (r * random.nextGaussian());
+            do {
+                x = mean_x - (int) (r * random.nextGaussian());
+                y = mean_y - (int) (r * random.nextGaussian());
+            } while (x < offset_x || x > offset_x + width || y < offset_y || y > offset_y + height);
 
             field.addPoint(new Point(x, y, 0));
         }
