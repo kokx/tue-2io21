@@ -1,0 +1,15 @@
+#!/bin/sh
+javac Main.java
+
+cat $1 | java Main > $1.out
+
+# visualization
+cd visualize/
+
+javac Main.java
+
+cat ../$1.out | java Main
+
+xdg-open output.png
+
+cd ..

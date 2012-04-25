@@ -8,8 +8,9 @@ class Main {
     Scanner sc;
     BufferedImage img;
 
-    public final static long MAX_SIZE = 1000;
+    public final static long MAX_SIZE = 750;
     public final static double SCALE_POINT = 1.0;
+    public final static boolean ALL_BLACK = true;
 
     long min_x;
     long max_x;
@@ -21,6 +22,8 @@ class Main {
 
     double scale_x;
     double scale_y;
+
+    long[][] map;
 
     ArrayList<Integer> points_x = new ArrayList<Integer>();
     ArrayList<Integer> points_y = new ArrayList<Integer>();
@@ -76,10 +79,32 @@ class Main {
             scale_x = size_x / (diff_x * 1.0);
         }
 
-        System.out.println("X scale: " + scale_x + " diff: " + diff_x);
-        System.out.println("Y scale: " + scale_y + " diff: " + diff_y + " bla: " + (MAX_SIZE * diff_y));
+        //System.out.println("X scale: " + scale_x + " diff: " + diff_x);
+        //System.out.println("Y scale: " + scale_y + " diff: " + diff_y);
+        //System.out.println("");
+        //System.out.println("Points: " + points_x.size());
+
+        calculatePoints();
 
         draw();
+    }
+
+    void calculatePoints()
+    {
+        map = new long[(int) size_x][(int) size_y];
+
+        for (int i = 0; i < size_x; i++) {
+            for (int j = 0; j < size_y; j++) {
+                map[i][j] = 0;
+            }
+        }
+
+        for (int i = 0; i < points_x.size(); i++) {
+            int x = (int) ((points_x.get(i) - min_x) * scale_x);
+            int y = (int) ((points_y.get(i) - min_y) * scale_y);
+            //System.out.println("Iep: " + i + " X: " + x + " Y: " + y + " W: " + width + " H: " + height);
+            map[x][y]++;
+        }
     }
 
     void draw()
@@ -95,10 +120,12 @@ class Main {
 
         for (int i = 0; i < points_x.size(); i++) {
             g.setColor(getColor(points_c.get(i)));
-            g.fillOval((int) ((points_x.get(i) - min_x) * scale_x),
-                       (int) ((points_y.get(i) - min_y) * scale_y),
-                       ((int) ((2 + scale_x) * SCALE_POINT)),
-                       ((int) ((2 + scale_y) * SCALE_POINT)));
+            int x = (int) ((points_x.get(i) - min_x) * scale_x);
+            int y = (int) ((points_y.get(i) - min_y) * scale_y);
+            int width = ((int) ((2 + scale_x) * SCALE_POINT /* * Math.log(map[x][y])*/));
+            int height = ((int) ((2 + scale_y) * SCALE_POINT /* * Math.log(map[x][y])*/));
+            g.fillOval(x, y, width, height);
+            //System.out.println("Iep: " + i + " X: " + x + " Y: " + y + " W: " + width + " H: " + height);
         }
 
         try {
@@ -111,7 +138,7 @@ class Main {
     
     Color getColor(int cluster)
     {
-        if (cluster == 0) {
+        if (cluster == 0 || ALL_BLACK) {
             return Color.BLACK;
         }
 
