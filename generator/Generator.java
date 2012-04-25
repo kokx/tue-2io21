@@ -3,7 +3,7 @@ import java.util.*;
 
 class Generator {
 
-    public final static int MAX_OFFSET = 100000;
+    public final static int DEFAULT_MAX_OFFSET = 100000;
 
     Field field;
 
@@ -14,36 +14,46 @@ class Generator {
 
     Random random;
 
-    public Generator()
+    public Generator(int width, int height)
+    {
+        this(width, height, DEFAULT_MAX_OFFSET);
+    }
+
+    public Generator(int width, int height, int max_offset)
     {
         field = new Field();
+        random = new Random();
+
+        this.width = width;
+        this.height = height;
+
+        offset_x = random.nextInt(max_offset);
+        offset_y = random.nextInt(max_offset);
     }
 
     /**
      * Generate.
      */
-    public Field generate(int width, int height, int noise_density, int clusters, int cluster_size, int cluster_density)
+    public Field generate(int noise_density, int clusters, int cluster_size, int cluster_density)
     {
-        random = new Random();
-        offset_x = random.nextInt(MAX_OFFSET);
-        offset_y = random.nextInt(MAX_OFFSET);
-
-        this.width = width;
-        this.height = height;
-
-        int max_x = offset_x + width;
-        int max_y = offset_y + height;
-
-        for (int i = 0; i < clusters; i++) {
-            int mean_x = offset_x + random.nextInt(width - (2 * cluster_size)) + cluster_size;
-            int mean_y = offset_y + random.nextInt(height - (2 * cluster_size)) + cluster_size;
-
-            createUniformCluster(mean_x, mean_y, cluster_size, cluster_density);
-        }
+        generateClusters(clusters, cluster_size, cluster_density);
 
         createUniformNoise(noise_density);
 
         return field;
+    }
+
+    /**
+     * Generate multiple clusters with the same size and density.
+     */
+    public void generateClusters(int clusters, int size, int density)
+    {
+        for (int i = 0; i < clusters; i++) {
+            int mean_x = offset_x + random.nextInt(width - (2 * size)) + size;
+            int mean_y = offset_y + random.nextInt(height - (2 * size)) + size;
+
+            createUniformCluster(mean_x, mean_y, size, density);
+        }
     }
 
     /**
@@ -66,8 +76,16 @@ class Generator {
     /**
      * Create a cluster using a normal distribution.
      */
-    public void createGaussianCluster(int mean_x, int mean_y, int stddev, int density)
+    public void createGaussianCluster(int mean_x, int mean_y, int r, int density)
     {
+        for (int i = 0; i < density; i++) {
+            int x;
+            int y;
+            x = mean_x - (int) (r * random.nextGaussian());
+            y = mean_y - (int) (r * random.nextGaussian());
+
+            field.addPoint(new Point(x, y, 0));
+        }
     }
 
     /**
