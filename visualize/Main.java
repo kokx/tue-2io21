@@ -8,15 +8,16 @@ class Main {
     Scanner sc;
     BufferedImage img;
 
-    public final static int MAX_SIZE = 1000;
+    public final static long MAX_SIZE = 1000;
+    public final static double SCALE_POINT = 1.0;
 
-    int min_x;
-    int max_x;
-    int min_y;
-    int max_y;
+    long min_x;
+    long max_x;
+    long min_y;
+    long max_y;
 
-    int size_x;
-    int size_y;
+    long size_x;
+    long size_y;
 
     double scale_x;
     double scale_y;
@@ -58,8 +59,8 @@ class Main {
 
         // calculate image dimensions, we add two to the diff, so the edge
         // values will also be displayed correctly
-        int diff_x = max_x - min_x + 2;
-        int diff_y = max_y - min_y + 2;
+        long diff_x = max_x - min_x + 2;
+        long diff_y = max_y - min_y + 2;
 
         if (diff_x > diff_y) {
             size_x = MAX_SIZE;
@@ -76,7 +77,7 @@ class Main {
         }
 
         System.out.println("X scale: " + scale_x + " diff: " + diff_x);
-        System.out.println("Y scale: " + scale_y + " diff: " + diff_y);
+        System.out.println("Y scale: " + scale_y + " diff: " + diff_y + " bla: " + (MAX_SIZE * diff_y));
 
         draw();
     }
@@ -84,17 +85,20 @@ class Main {
     void draw()
     {
         // now start creating the image
-        img = new BufferedImage(size_x, size_y, BufferedImage.TYPE_INT_RGB);
+        img = new BufferedImage((int) size_x, (int) size_y, BufferedImage.TYPE_INT_RGB);
 
         Graphics2D g = img.createGraphics();
 
         g.setColor(Color.WHITE);
 
-        g.fillRect(0, 0, size_x, size_y);
+        g.fillRect(0, 0, (int) size_x, (int) size_y);
 
         for (int i = 0; i < points_x.size(); i++) {
             g.setColor(getColor(points_c.get(i)));
-            g.fillOval((int) ((points_x.get(i) - min_x) * scale_x), (int) ((points_y.get(i) - min_y) * scale_y), 2 + ((int) scale_x), 2 + ((int) scale_y));
+            g.fillOval((int) ((points_x.get(i) - min_x) * scale_x),
+                       (int) ((points_y.get(i) - min_y) * scale_y),
+                       ((int) ((2 + scale_x) * SCALE_POINT)),
+                       ((int) ((2 + scale_y) * SCALE_POINT)));
         }
 
         try {
