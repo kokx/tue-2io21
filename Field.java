@@ -14,9 +14,9 @@ public class Field
 
     public Field()
     {
-        min_x = Integer.MAX_INT;
+        min_x = Integer.MAX_VALUE;
         max_x = 0;
-        min_y = Integer.MAX_INT;
+        min_y = Integer.MAX_VALUE;
         max_y = 0;
         points = new ArrayList<Point>();
     }
