@@ -10,7 +10,7 @@ class Main {
 
     public final static long MAX_SIZE = 1000;
     public final static double SCALE_POINT = 1.0;
-    public final static boolean ALL_BLACK = true;
+    public final static boolean ALL_BLACK = false;
 
     long min_x;
     long max_x;
@@ -122,8 +122,8 @@ class Main {
             g.setColor(getColor(points_c.get(i)));
             int x = (int) ((points_x.get(i) - min_x) * scale_x);
             int y = (int) ((points_y.get(i) - min_y) * scale_y);
-            int width = ((int) ((2 + scale_x) * SCALE_POINT /* * Math.log(map[x][y])*/));
-            int height = ((int) ((2 + scale_y) * SCALE_POINT /* * Math.log(map[x][y])*/));
+            int width = ((int) ((2 + scale_x) * SCALE_POINT /* * Math.log(map[x][y]) */));
+            int height = ((int) ((2 + scale_y) * SCALE_POINT /* * Math.log(map[x][y]) */));
             g.fillOval(x, y, width, height);
             //System.out.println("Iep: " + i + " X: " + x + " Y: " + y + " W: " + width + " H: " + height);
         }

@@ -11,10 +11,10 @@ class Main {
 
     void run()
     {
-        Generator generator = new Generator(1000, 1000);
-        generator.generate(4000, 3, 50, 8000);
+        Generator generator = new Generator(600, 600);
+        generator.generate(0, 3, 50, 1500);
 
-        generator.generateGaussianNoise(4, 100, 5000);
+        //generator.generateGaussianNoise(10, 50, 5000);
 
         output(generator.getField());
     }
