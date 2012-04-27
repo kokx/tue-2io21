@@ -39,4 +39,14 @@ public class Field
             max_y = p.getY();
         }
     }
+
+    public ArrayList<Point> getAllPoints()
+    {
+        return points;
+    }
+
+    public Point getPoint(int i)
+    {
+        return points.get(i);
+    }
 }

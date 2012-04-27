@@ -1,8 +1,6 @@
 import java.io.*;
 import java.util.*;
 
-package generator;
-
 class Main {
     Scanner sc;
 
@@ -13,30 +11,23 @@ class Main {
 
     void run()
     {
-        // read 'find $C_i$ to $C_j$ clusters'
-        // read '$n$ points'
-        // read '$x$ $y$' for each point
-        sc.next(); // find
-        int ci = sc.nextInt();
-        int cj = ci;
-        if (sc.next().equals("to")) { // otherwise, it is clusters
-            cj = sc.nextInt();
-            sc.next(); // clusters
-        }
+        Generator generator = new Generator(1000, 1000);
+        generator.generate(4000, 3, 50, 8000);
 
-        int n = sc.nextInt();
-        sc.next(); // points
+        generator.generateGaussianNoise(4, 100, 5000);
 
-        int[] points_x = new int[n];
-        int[] points_y = new int[n];
+        output(generator.getField());
+    }
 
-        for (int i = 0; i < n; i++) {
-            points_x[i] = sc.nextInt();
-            points_y[i] = sc.nextInt();
-        }
+    void output(Field field)
+    {
+        ArrayList<Point> points = field.getAllPoints();
 
-        for (int i = 0; i < n; i++) {
-            System.out.println(points_x[i] + " " + points_y[i] + " " + (i % cj));
+        System.out.println("find 2 to 4 clusters");
+        System.out.println(field.getAllPoints().size() + " points");
+
+        for (Point p : points) {
+            System.out.println(p.getX() + " " + p.getY());
         }
     }
 
