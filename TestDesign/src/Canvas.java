@@ -14,12 +14,14 @@ import java.awt.event.*;
 public class Canvas extends JPanel{
 
 	TreeMap<Long, Point> points = new TreeMap<Long, Point>();
-	
+	int mouseX = 0;
+	int mouseY = 0;
+	int spraySize = 5;
 	Canvas()
 	{
 		super();
 	}
-	
+
 	public void updateDisplay(TreeMap<Long, Point> allPoints)
 	{
 		points = allPoints;
@@ -33,9 +35,17 @@ public class Canvas extends JPanel{
 		for(Point i : points.values())
 		{
 			g.drawLine(i.getX(), i.getY(), i.getX(), i.getY());
-
 		}
+		g.drawOval(mouseX-spraySize/2, mouseY-spraySize/2, spraySize, spraySize);
 
+	}
+
+	public void updateSpray(int mouseX, int mouseY, int spraySize)
+	{
+		this.mouseX = mouseX;
+		this.mouseY = mouseY;
+		this.spraySize = spraySize;
+		updateDisplay(points);
 	}
 
 }

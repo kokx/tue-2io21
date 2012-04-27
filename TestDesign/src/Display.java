@@ -198,18 +198,23 @@ class Display extends JPanel implements ActionListener, MouseWheelListener, Mous
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		// TODO Auto-generated method stub
 		spraySize = (int) Math.max(10,spraySize+e.getWheelRotation()*(20*Math.max(1,Math.floor(spraySize/200))));
+		canvas.updateSpray(mouseX,mouseY,spraySize);
+		
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		mouseX = e.getX()-80;		
 		mouseY = e.getY()-55;	
+		canvas.updateSpray(mouseX,mouseY,spraySize);
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		mouseX = e.getX()-80;		
 		mouseY = e.getY()-55;		
+		canvas.updateSpray(mouseX,mouseY,spraySize);
+
 	}
 
 

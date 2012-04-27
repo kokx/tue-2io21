@@ -67,7 +67,7 @@ public class Sprayer{
 				pointX = 0;
 				pointY = 0;
 
-				int distance = (generator.nextInt(spraySize));
+				int distance = (generator.nextInt(spraySize/2));
 				double angle = (generator.nextDouble()*(2*Math.PI));
 				pointX = mouseX+(int) (Math.sin(angle)*distance);
 				pointY = mouseY+(int) (Math.cos(angle)*distance);
