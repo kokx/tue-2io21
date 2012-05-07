@@ -7,8 +7,8 @@ public class Quality {
 	Quality(ArrayList<Cluster> inputList) {
 		clusterList = inputList;
 	}
-	
-	private void calcCentroid(Cluster cluster) {
+
+    private Point calcCentroid(Cluster cluster) {
 		int size = cluster.size();
 		long totalx = 0;
 		long totaly = 0;
@@ -19,8 +19,8 @@ public class Quality {
 			totalx += point.getX();
 			totaly += point.getY();
 		}
-		
 
+        return new Point(centroidx, centroidy, -1);
 	}
 
 }

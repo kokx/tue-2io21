@@ -2,18 +2,18 @@ import java.util.ArrayList;
 
 
 public class Cluster {
-	private ArrayList<Point> pointsList;
-	private int clusterID;
+	private ArrayList<Point> points;
+	private int clusterId;
 	private double quality;
 	private double scatter;
 	private Point centroid;
 	
-	Cluster(int ID) {
-		clusterID = ID;
+	Cluster(int Id) {
+		clusterId = Id;
 	}
 	
 	public void addPoint(Point point) {
-		pointsList.add(point);
+		points.add(point);
 	}
 	
 	public void setQuality(double score) {
@@ -24,8 +24,8 @@ public class Cluster {
 		return quality;
 	}
 	
-	public int getID() {
-		return clusterID;
+	public int getId() {
+		return clusterId;
 	}
 	
 	public void setScatter(double score) {
@@ -37,15 +37,26 @@ public class Cluster {
 	}
 	
 	public int size() {
-		return pointsList.size();
+		return points.size();
 	}
 	
-	public void setCentroid(Point point) {
-		centroid = point;
+	public Point getCentroid() {
+        if (centroid != null) {
+            long totalx = 0;
+            long totaly = 0;
+
+            for (Point point : pointList) {
+                totalx += point.getX();
+                totaly += point.getY();
+            }
+
+            centroid = new Point((int) (totalx / (long) this.size()), (int) (totaly / (long) this.size()), -1);
+        }
+        return centroid;
 	}
 	
-	public ArrayList<Point> getPointsList() {
-		return pointsList;
+	public ArrayList<Point> getPoints() {
+		return points;
 	}
 	
 }
