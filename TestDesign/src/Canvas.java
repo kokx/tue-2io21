@@ -22,6 +22,12 @@ public class Canvas extends JPanel{
 		super();
 	}
 
+	public void clear()
+	{
+		points.clear();
+		repaint();
+	}
+	
 	public void updateDisplay(TreeMap<Long, Point> allPoints)
 	{
 		points = allPoints;

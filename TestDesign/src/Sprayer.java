@@ -13,12 +13,18 @@ public class Sprayer{
 	Random generator = new Random();
 	TreeMap<Long, Point> field = new TreeMap<Long, Point>();
 
-
 	String distribution;
+
+	boolean densityBased = true;
+	private double density = 0.7;
 
 	Sprayer()
 	{
 
+	}
+	public void clear()
+	{
+		field.clear();
 	}
 
 	public void beginSpray(int x,int y,int spraySize,String distributionType)
@@ -27,7 +33,7 @@ public class Sprayer{
 	}
 
 	//generates the points as long as the mouse is hold
-	public TreeMap<Long, Point> spray(int spraySize,int mouseX,int mouseY,int amount)
+	public TreeMap<Long, Point> spray(int spraySize,int mouseX,int mouseY,double density)
 	{
 		int pointX = 0;
 		int pointY = 0;
@@ -35,7 +41,8 @@ public class Sprayer{
 
 		if ("Uniform".equals(distribution))
 		{
-			for(int i=0; i<amount;i++)
+			density = (int) (density*Math.PI*Math.pow(spraySize/2,2));
+			for(int i=0; i<density;i++)
 			{
 				pointX = 0;
 				pointY = 0;
@@ -55,37 +62,9 @@ public class Sprayer{
 						}
 					}
 				}
-			}
-		}
 
-
-
-		if ("Normal".equals(distribution)) //might need to be changed, not a perfect normal distribution
-		{
-			for(int i =0;i<amount;i++)
-			{
-				pointX = 0;
-				pointY = 0;
-
-				int distance = (generator.nextInt(spraySize/2));
-				double angle = (generator.nextDouble()*(2*Math.PI));
-				pointX = mouseX+(int) (Math.sin(angle)*distance);
-				pointY = mouseY+(int) (Math.cos(angle)*distance);
-
-				if (pointX>0 && pointY >0)
-				{
-					long longX = (long) pointX << 32;
-					if (!field.containsKey(((long) longX+pointY)))
-					{
-						Point p = (new Point(pointX,pointY,0));						
-						field.put((long) (longX+pointY), p);
-
-					}
-				}
 			}
 		}
 		return(field);
 	}
-
-
 }

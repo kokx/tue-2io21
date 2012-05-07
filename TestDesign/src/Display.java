@@ -13,21 +13,25 @@ class Display extends JPanel implements ActionListener, MouseWheelListener, Mous
 {
 	Sprayer sprayer;
 	public int spraySize = 50; //size of the distribution
-	public int sprayAmount = 500;
+	public int sprayAmount = 800;
 
+	public int mulX = 104729;
+	public int mulY = mulX;
+	
 	private int mouseX = 0;
 	private int mouseY = 0;
 
 	private Canvas canvas = new Canvas();
 	private JTextField clusters = new JTextField("find 0 to 4 clusters");;
+	private JTextField density = new JTextField("density: 0.8");
 
-	public String distribution = "Normal";
+	public String distribution = "Uniform";
 
 	int width; //contains the width of the field
 	int height; //contains the height of the field
 
 	boolean spraying;
-	Timer timer = new Timer(5,this);
+	Timer timer = new Timer(20,this);
 
 	JButton buttonDistribution; //button for the distributions
 
@@ -49,12 +53,17 @@ class Display extends JPanel implements ActionListener, MouseWheelListener, Mous
 		if (evt.getSource() == timer)
 		{
 			spray();
-			timer.start();
+			timer.stop();
 		}
 
-		if (("Take Input").equals(evt.getActionCommand())) //if the start/stop button has been pressed
+		
+		if (("Take input").equals(evt.getActionCommand())) //if the start/stop button has been pressed
 		{
-
+			points.clear();
+			canvas.clear();
+			sprayer.clear();
+			System.out.println(points.size());
+			//takeInput();
 		}
 
 		if (("Normal").equals(evt.getActionCommand())) //if the start/stop button has been pressed
@@ -62,8 +71,8 @@ class Display extends JPanel implements ActionListener, MouseWheelListener, Mous
 			buttonDistribution.setLabel("Uniform");
 			distribution = "Uniform";
 			repaint();
-
 		}
+		
 		if (("Uniform").equals(evt.getActionCommand())) //if the start/stop button has been pressed
 		{
 			buttonDistribution.setLabel("Normal");
@@ -82,6 +91,11 @@ class Display extends JPanel implements ActionListener, MouseWheelListener, Mous
 
 		System.out.println(clusters.getText());
 		System.out.println(points.size()+ " points");
+		for(Point i: points.values())
+		{
+			System.out.println(i.getX()*mulX);
+			System.out.println(i.getY()*mulY);
+		}
 	}
 	
 	public void initializeSprayer()
@@ -122,7 +136,9 @@ class Display extends JPanel implements ActionListener, MouseWheelListener, Mous
 		buttonDistribution = new JButton("Normal");
 		buttonDistribution.addActionListener(this);
 
-		frame.add(buttonDistribution,BorderLayout.WEST);
+		//frame.add(buttonDistribution,BorderLayout.WEST);
+		frame.add(density,BorderLayout.WEST);
+		
 		frame.add(button2,BorderLayout.SOUTH);
 		frame.add(button,BorderLayout.NORTH);
 		frame.add(clusters,BorderLayout.EAST);
@@ -150,15 +166,18 @@ class Display extends JPanel implements ActionListener, MouseWheelListener, Mous
 			points.put((long) ((long) (i.getX() << 32)+i.getY()),i);
 		}
 		updateDisplay();
+		
 	}
 
 
 	public void spray()
 	{
-		points = (sprayer.spray(spraySize,mouseX,mouseY,sprayAmount));
+		//points = (sprayer.spray(spraySize,mouseX,mouseY,sprayAmount));
+		points = sprayer.spray(spraySize,mouseX,mouseY,Double.parseDouble(density.getText().replaceAll("density: ", "")));
 		canvas.points = points;
 		updateDisplay();
 	}
+	
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -197,7 +216,7 @@ class Display extends JPanel implements ActionListener, MouseWheelListener, Mous
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		// TODO Auto-generated method stub
-		spraySize = (int) Math.max(10,spraySize+e.getWheelRotation()*(20*Math.max(1,Math.floor(spraySize/200))));
+		spraySize = (int) Math.max(10,spraySize+e.getWheelRotation()*(5*Math.max(1,Math.floor(spraySize/200))));
 		canvas.updateSpray(mouseX,mouseY,spraySize);
 		
 	}
