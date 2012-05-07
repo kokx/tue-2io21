@@ -10,7 +10,7 @@ public class Field
     int min_y;
     int max_y;
 
-    ArrayList<Point> points;
+    TreeMap<Long,Point> points;
 
     public Field()
     {
@@ -18,12 +18,15 @@ public class Field
         max_x = 0;
         min_y = Integer.MAX_VALUE;
         max_y = 0;
-        points = new ArrayList<Point>();
+        points = new TreeMap<Long,Point>();
     }
 
     public void addPoint(Point p)
     {
-        points.add(p);
+        if (hasPoint(p.getX(), p.getY())) {
+            return;
+        }
+        points.put(getKey(p.getX(), p.getY()), p);
 
         if (p.getX() < min_x) {
             min_x = p.getX();
@@ -40,13 +43,31 @@ public class Field
         }
     }
 
-    public ArrayList<Point> getAllPoints()
+    public int size()
     {
-        return points;
+        return points.size();
     }
 
-    public Point getPoint(int i)
+    public Collection<Point> getAllPoints()
     {
-        return points.get(i);
+        return points.values();
+    }
+
+    public Point getPoint(int x, int y)
+    {
+        return points.get(getKey(x, y));
+    }
+
+    public boolean hasPoint(int x, int y)
+    {
+        return points.containsKey(getKey(x, y));
+    }
+
+    private long getKey(int x, int y)
+    {
+        long key = x;
+        key = key << 32;
+        key += y;
+        return key;
     }
 }

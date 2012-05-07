@@ -55,11 +55,19 @@ class Generator {
     public void generateClusters(int clusters, int size, int density)
     {
         for (int i = 0; i < clusters; i++) {
-            int mean_x = random.nextInt(width - (2 * size)) + size;
-            int mean_y = random.nextInt(height - (2 * size)) + size;
-
-            createUniformCluster(mean_x, mean_y, size, density);
+            generateCluster(size, density);
         }
+    }
+
+    /**
+     * Generate a cluster with a size and density.
+     */
+    public void generateCluster(int size, int density)
+    {
+        int mean_x = random.nextInt(width - (2 * size)) + size;
+        int mean_y = random.nextInt(height - (2 * size)) + size;
+
+        createUniformCluster(mean_x, mean_y, size, density);
     }
 
     /**
@@ -125,5 +133,13 @@ class Generator {
             int y = offset_y + random.nextInt(height);
             field.addPoint(new Point(x, y, 0));
         }
+    }
+
+    /**
+     * Get the random generator.
+     */
+    public Random getRandomGenerator()
+    {
+        return random;
     }
 }
