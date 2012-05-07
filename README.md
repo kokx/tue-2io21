@@ -1,4 +1,4 @@
 tue-2io21
 =========
 
-Project van γρονπ ουε.
+Project van γρουπ ονε.
