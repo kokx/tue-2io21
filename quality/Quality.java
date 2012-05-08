@@ -12,17 +12,18 @@ public class Quality {
 	}
 	
 	public void calcQualityIndex(int mode) {
-		double[] ScatterDistenceFactors = new double[clusters.size()-1];
+		ArrayList<Double> ScatterDistenceFactors = new ArrayList<Double>();
 		double quality = 0;
 		for (Cluster cluster : clusters) {
 			if (cluster.getId() != 0) {
-				calcMaxScatterDistenceFactor(cluster, mode);
+				double tempdouble = calcMaxScatterDistenceFactor(cluster, mode);
+				ScatterDistenceFactors.add(tempdouble);
 			}
 		}
-		for (double factor: ScatterDistenceFactors) {
+		for (double factor : ScatterDistenceFactors) {
 			quality += factor;
 		}
-		quality = quality / ScatterDistenceFactors.length;
+		quality = quality / ScatterDistenceFactors.size();
 		score = quality;
 	}
 		
