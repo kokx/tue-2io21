@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# first compile all files
+
+javac Main.java algorithm/*.java generator/*.java model/*.java quality/*.java visualize/*.java
+
+java generator.Main > input/$1
+
+cat input/$1 | java Main > input/$1.out
+
+# visualization
+
+cat input/$1.out | java visualize.Main
+
+xdg-open output.png
