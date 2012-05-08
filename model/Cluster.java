@@ -2,6 +2,8 @@ package model;
 
 import java.util.ArrayList;
 
+import algorithm.*;
+
 
 public class Cluster {
 	private ArrayList<Point> points = new ArrayList<Point>();
@@ -35,7 +37,7 @@ public class Cluster {
 		if (scatter == 0) {
 			double totalscore = 0;
 			for (Point point : points) {
-				totalscore += distance(centroid, point, mode);
+				totalscore += Calculations.distance(centroid, point, mode);
 			}
 			scatter = totalscore * Math.pow(this.size(), 1/mode);
 		}
