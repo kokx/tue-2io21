@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 
 public class Cluster {
-	private ArrayList<Point> points;
+	private ArrayList<Point> points = new ArrayList<Point>();
 	private int clusterId;
 	private double quality;
 	private double scatter;
@@ -33,7 +33,7 @@ public class Cluster {
 		if (scatter == 0) {
 			double totalscore = 0;
 			for (Point point : points) {
-				totalscore += distence(centroid, point, mode);
+				totalscore += distance(centroid, point, mode);
 			}
 			scatter = totalscore * Math.pow(this.size(), 1/mode);
 		}
@@ -60,5 +60,19 @@ public class Cluster {
 	public ArrayList<Point> getPoints() {
 		return points;
 	}
+	
+	//TODO: remove
+    public double distance(Point sourcePoint, Point destPoint, int m)
+    {
+        long dx = (long) Math.abs(destPoint.getX() - sourcePoint.getX());
+        long dy = (long) Math.abs(destPoint.getY() - sourcePoint.getY());
+
+        switch (m) {
+            case 1: 
+                return (double) (dx + dy);
+            default:
+                return Math.pow(Math.pow(dx, m) + Math.pow(dy, m), 1.0/m);
+        }
+    }
 	
 }

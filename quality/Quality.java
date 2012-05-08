@@ -3,12 +3,15 @@ import java.util.ArrayList;
 
 public class Quality {
 	ArrayList<Cluster> clusters;
+	double score;
 	
+	//TODO: unhardcode mode.
 	Quality(ArrayList<Cluster> inputList) {
 		clusters = inputList;
+		calcQualityIndex(1);
 	}
 	
-	public double calcQualityIndex(int mode) {
+	public void calcQualityIndex(int mode) {
 		double[] ScatterDistenceFactors = new double[clusters.size()-1];
 		double quality = 0;
 		for (Cluster cluster : clusters) {
@@ -20,23 +23,46 @@ public class Quality {
 			quality += factor;
 		}
 		quality = quality / ScatterDistenceFactors.length;
-		return quality;
+		score = quality;
 	}
 		
-	//TODO: distance call.	
+	//TODO: distance call.
 	private double calcMaxScatterDistenceFactor(Cluster cluster, int mode) {
-		double temp;
-		ArrayList<double> temps;
+		double result = 0;
+		ArrayList<Double> temps = new ArrayList<Double>();
 		for (Cluster othercluster : clusters) {
+			double temp;
 			if (othercluster.getId() != 0 && othercluster != cluster) {
-				temp = distence(cluster.getCentroid(), othercluster.getCentroid(), mode);
+				temp = distance(cluster.getCentroid(), othercluster.getCentroid(), mode);
 				temp = (cluster.getScatter(mode) + othercluster.getScatter(mode)) / temp;
 				temps.add(temp);
 			}
 		}
-		return temps.max();
+		for (double temp : temps) {
+			if (temp > result) {
+				result = temp;
+			}
+		}
+		return result;
 	}
-
 	
+	//TODO: remove
+    public double distance(Point sourcePoint, Point destPoint, int m)
+    {
+        long dx = (long) Math.abs(destPoint.getX() - sourcePoint.getX());
+        long dy = (long) Math.abs(destPoint.getY() - sourcePoint.getY());
+
+        switch (m) {
+            case 1: 
+                return (double) (dx + dy);
+            default:
+                return Math.pow(Math.pow(dx, m) + Math.pow(dy, m), 1.0/m);
+        }
+    }
+    
+    public double getScore() {
+    	return score;
+    }
+
 
 }
