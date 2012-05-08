@@ -2,25 +2,41 @@ import java.util.ArrayList;
 
 
 public class Quality {
-	private ArrayList<Cluster> clusterList;
+	ArrayList<Cluster> clusters;
 	
 	Quality(ArrayList<Cluster> inputList) {
-		clusterList = inputList;
+		clusters = inputList;
 	}
-
-    private Point calcCentroid(Cluster cluster) {
-		int size = cluster.size();
-		long totalx = 0;
-		long totaly = 0;
-		int centroidx, centroidy;
-		ArrayList<Point> pointList;
-		pointList = cluster.getPointsList();
-		for (Point point : pointList) {
-			totalx += point.getX();
-			totaly += point.getY();
+	
+	public double calcQualityIndex(int mode) {
+		double[] ScatterDistenceFactors = new double[clusters.size()-1];
+		double quality = 0;
+		for (Cluster cluster : clusters) {
+			if (cluster.getId() != 0) {
+				calcMaxScatterDistenceFactor(cluster, mode);
+			}
 		}
-
-        return new Point(centroidx, centroidy, -1);
+		for (double factor: ScatterDistenceFactors) {
+			quality += factor;
+		}
+		quality = quality / ScatterDistenceFactors.length;
+		return quality;
 	}
+		
+	//TODO: distance call.	
+	private double calcMaxScatterDistenceFactor(Cluster cluster, int mode) {
+		double temp;
+		ArrayList<double> temps;
+		for (Cluster othercluster : clusters) {
+			if (othercluster.getId() != 0 && othercluster != cluster) {
+				temp = distence(cluster.getCentroid(), othercluster.getCentroid(), mode);
+				temp = (cluster.getScatter(mode) + othercluster.getScatter(mode)) / temp;
+				temps.add(temp);
+			}
+		}
+		return temps.max();
+	}
+
+	
 
 }

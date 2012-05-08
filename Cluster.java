@@ -28,11 +28,15 @@ public class Cluster {
 		return clusterId;
 	}
 	
-	public void setScatter(double score) {
-		scatter = score;
-	}
-	
-	public double getScatter() {
+	//TODO: fix ability to call distence in algorithm class.
+	public double getScatter(int mode) {
+		if (scatter == 0) {
+			double totalscore = 0;
+			for (Point point : points) {
+				totalscore += distence(centroid, point, mode);
+			}
+			scatter = totalscore * Math.pow(this.size(), 1/mode);
+		}
 		return scatter;
 	}
 	
@@ -41,15 +45,13 @@ public class Cluster {
 	}
 	
 	public Point getCentroid() {
-        if (centroid != null) {
+        if (centroid == null) {
             long totalx = 0;
             long totaly = 0;
-
-            for (Point point : pointList) {
+            for (Point point : points) {
                 totalx += point.getX();
                 totaly += point.getY();
             }
-
             centroid = new Point((int) (totalx / (long) this.size()), (int) (totaly / (long) this.size()), -1);
         }
         return centroid;
