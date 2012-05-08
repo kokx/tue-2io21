@@ -20,7 +20,7 @@ class Main {
     	while (sc.hasNextInt()) {
     		processOneInput();
     	}
-    	Quality result = new Quality(clusters);
+    	Quality result = new Quality(clusters, mode);
     	System.out.print(result.getScore());
     }
     

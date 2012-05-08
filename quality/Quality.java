@@ -1,6 +1,7 @@
 package quality;
 
 import java.util.ArrayList;
+import algorithm.*;
 
 import model.*;
 
@@ -9,10 +10,9 @@ public class Quality {
 	ArrayList<Cluster> clusters;
 	double score;
 	
-	//TODO: unhardcode mode.
-	Quality(ArrayList<Cluster> inputList) {
+	Quality(ArrayList<Cluster> inputList, int mode) {
 		clusters = inputList;
-		calcQualityIndex(1);
+		calcQualityIndex(mode);
 	}
 	
 	public void calcQualityIndex(int mode) {
@@ -38,7 +38,7 @@ public class Quality {
 		for (Cluster othercluster : clusters) {
 			double temp;
 			if (othercluster.getId() != 0 && othercluster != cluster) {
-				temp = distance(cluster.getCentroid(), othercluster.getCentroid(), mode);
+				temp = Calculations.distance(cluster.getCentroid(), othercluster.getCentroid(), mode);
 				temp = (cluster.getScatter(mode) + othercluster.getScatter(mode)) / temp;
 				temps.add(temp);
 			}
@@ -50,20 +50,7 @@ public class Quality {
 		}
 		return result;
 	}
-	
-	//TODO: remove
-    public double distance(Point sourcePoint, Point destPoint, int m)
-    {
-        long dx = (long) Math.abs(destPoint.getX() - sourcePoint.getX());
-        long dy = (long) Math.abs(destPoint.getY() - sourcePoint.getY());
 
-        switch (m) {
-            case 1: 
-                return (double) (dx + dy);
-            default:
-                return Math.pow(Math.pow(dx, m) + Math.pow(dy, m), 1.0/m);
-        }
-    }
     
     public double getScore() {
     	return score;
