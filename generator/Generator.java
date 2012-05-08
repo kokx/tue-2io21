@@ -1,3 +1,5 @@
+package generator;
+
 import java.io.*;
 import java.util.*;
 

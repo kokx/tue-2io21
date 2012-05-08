@@ -1,3 +1,5 @@
+package visualize;
+
 import java.io.*;
 import java.util.*;
 import java.awt.image.*;
