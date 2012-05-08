@@ -32,7 +32,6 @@ public class Cluster {
 		return clusterId;
 	}
 	
-	//TODO: fix ability to call distence in algorithm class.
 	public double getScatter(int mode) {
 		if (scatter == 0) {
 			double totalscore = 0;

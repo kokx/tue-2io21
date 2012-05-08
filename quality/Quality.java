@@ -31,7 +31,6 @@ public class Quality {
 		score = quality;
 	}
 		
-	//TODO: distance call.
 	private double calcMaxScatterDistenceFactor(Cluster cluster, int mode) {
 		double result = 0;
 		ArrayList<Double> temps = new ArrayList<Double>();

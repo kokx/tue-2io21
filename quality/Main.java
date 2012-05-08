@@ -8,19 +8,20 @@ import model.*;
 class Main {
     private Scanner sc;
     private ArrayList<Cluster> clusters = new ArrayList<Cluster>();
+	
+	public final static int DISTANCE_METRIC = 2;
 
     public Main()
     {
         sc = new Scanner(System.in);
     }
     
-    //TODO: fix skip of input,termination
     void run() {
 		processOneInput();
     	while (sc.hasNextInt()) {
     		processOneInput();
     	}
-    	Quality result = new Quality(clusters, 2);
+    	Quality result = new Quality(clusters, DISTANCE_METRIC);
     	System.out.println(result.getScore());
     }
     
