@@ -1,14 +1,18 @@
+package visualize;
+
 import java.io.*;
 import java.util.*;
 import java.awt.image.*;
 import java.awt.*;
 import javax.imageio.*;
 
+import model.*;
+
 class Main {
     Scanner sc;
     BufferedImage img;
 
-    public final static long MAX_SIZE = 1000;
+    public final static long MAX_SIZE = 750;
     public final static double SCALE_POINT = 1.0;
     public final static boolean ALL_BLACK = false;
 

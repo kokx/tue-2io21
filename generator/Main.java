@@ -1,5 +1,9 @@
+package generator;
+
 import java.io.*;
 import java.util.*;
+
+import model.*;
 
 class Main {
     Scanner sc;

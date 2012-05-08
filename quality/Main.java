@@ -1,5 +1,9 @@
+package quality;
+
 import java.io.*;
 import java.util.*;
+
+import model.*;
 
 class Main {
     private Scanner sc;

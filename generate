@@ -4,10 +4,12 @@
 
 javac Main.java algorithm/*.java generator/*.java model/*.java quality/*.java visualize/*.java
 
-cat $1 | java Main > $1.out
+java generator.Main > input/$1
+
+cat input/$1 | java Main > input/$1.out
 
 # visualization
 
-cat $1.out | java visualize.Main
+cat input/$1.out | java visualize.Main
 
 xdg-open output.png

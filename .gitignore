@@ -5,4 +5,5 @@
 *.war
 *.ear
 *.out
-input
+*.png
+staging/

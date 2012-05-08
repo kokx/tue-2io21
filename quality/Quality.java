@@ -1,4 +1,8 @@
+package quality;
+
 import java.util.ArrayList;
+
+import model.*;
 
 
 public class Quality {
@@ -64,6 +68,4 @@ public class Quality {
     public double getScore() {
     	return score;
     }
-
-
 }

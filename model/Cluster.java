@@ -1,3 +1,5 @@
+package model;
+
 import java.util.ArrayList;
 
 
@@ -48,6 +50,7 @@ public class Cluster {
         if (centroid == null) {
             long totalx = 0;
             long totaly = 0;
+
             for (Point point : points) {
                 totalx += point.getX();
                 totaly += point.getY();
