@@ -10,7 +10,7 @@ public class Cluster {
 	private double scatter;
 	private Point centroid;
 	
-	Cluster(int Id) {
+	public Cluster(int Id) {
 		clusterId = Id;
 	}
 	
