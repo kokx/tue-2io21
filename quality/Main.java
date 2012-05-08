@@ -3,40 +3,42 @@ import java.util.*;
 
 class Main {
     private Scanner sc;
-    private ArrayList<Cluster> clusterList = new ArrayList<Cluster>();
+    private ArrayList<Cluster> clusters = new ArrayList<Cluster>();
 
     public Main()
     {
         sc = new Scanner(System.in);
     }
     
-    //TODO: fix skip of input
+    //TODO: fix skip of input,termination
     void run() {
+		processOneInput();
+    	while (sc.hasNextInt()) {
+    		processOneInput();
+    	}
+    	Quality result = new Quality(clusters);
+    	System.out.print(result.getScore());
+    }
+    
+    private void processOneInput() {
     	int xtemp, ytemp, idtemp;
 		xtemp = sc.nextInt();
 		ytemp = sc.nextInt();
 		idtemp = sc.nextInt();
-    	while (sc.hasNextInt()) {
-    		xtemp = sc.nextInt();
-    		ytemp = sc.nextInt();
-    		idtemp = sc.nextInt();
-    		Point newPoint = new Point(xtemp, ytemp, idtemp);
-    		if (!checkClusterExists(idtemp)) {
-    			Cluster newCluster = new Cluster(idtemp);
-    			clusterList.add(newCluster);
-    			newCluster.addPoint(newPoint);
-    		} else {
-    			getCluster(idtemp).addPoint(newPoint);
-    		}
-    	}
-    	Quality result = new Quality(clusterList);
-    	System.out.print(result.getScore());
+		Point newPoint = new Point(xtemp, ytemp, idtemp);
+		if (!checkClusterExists(idtemp)) {
+			Cluster newCluster = new Cluster(idtemp);
+			clusters.add(newCluster);
+			newCluster.addPoint(newPoint);
+		} else {
+			getCluster(idtemp).addPoint(newPoint);
+		}
     }
     
     private boolean checkClusterExists(int IDtoCheck) {
     	boolean exists = false;
-    	if (clusterList != null) {
-    		for (Cluster cluster : clusterList) {
+    	if (clusters != null) {
+    		for (Cluster cluster : clusters) {
     			if (cluster.getId() == IDtoCheck) {
     				exists = true;
     				return exists;
@@ -47,7 +49,7 @@ class Main {
     }
     
     private Cluster getCluster(int clusterID) {
-    	for (Cluster cluster : clusterList) {
+    	for (Cluster cluster : clusters) {
     		if (cluster.getId() == clusterID) {
     			return cluster;
     		}
