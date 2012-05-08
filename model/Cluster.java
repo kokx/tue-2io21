@@ -47,7 +47,7 @@ public class Cluster {
             long totalx = 0;
             long totaly = 0;
 
-            for (Point point : pointList) {
+            for (Point point : points) {
                 totalx += point.getX();
                 totaly += point.getY();
             }

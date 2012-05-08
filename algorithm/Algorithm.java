@@ -3,6 +3,8 @@ package algorithm;
 import java.io.*;
 import java.util.*;
 
+import model.*;
+
 public abstract class Algorithm
 {
 
@@ -21,7 +23,7 @@ public abstract class Algorithm
     /**
      * Run the algorithm.
      */
-    public abstract void run()
+    public abstract void run();
     
     /**
      * Determine the distance between sourcePoint and destPoint.
@@ -31,17 +33,16 @@ public abstract class Algorithm
      * @param m 2 = Euclidean, 1 = Manhatten
      * @return Distance from sourcePoint to destPoint
      */
-    public int Distance(Point sourcePoint, Point destPoint, int m) {
+    public double Distance(Point sourcePoint, Point destPoint, int m)
+    {
+        long dx = (long) Math.abs(destPoint.getX() - sourcePoint.getX());
+        long dy = (long) Math.abs(destPoint.getY() - sourcePoint.getY());
+
         switch (m) {
             case 1: 
-                return Math.abs(destPoint.getX() - sourcePoint.getX()) 
-                    + Math.abs(destPoint.getY() - sourcePoint.getY());
-                break;
-            case 2:
-                return Math.sqrt(Math.pow(Math.abs(destPoint.getX() - sourcePoint.getX()), 2) 
-                        + Math.pow(Math.abs(destPoint.getY() - sourcePoint.getY()), 2));
-                break;
+                return (double) (dx + dy);
+            default:
+                return Math.pow(Math.pow(dx, m) + Math.pow(dy, m), 1.0/m);
         }
     }
-
 }

@@ -6,6 +6,8 @@ import java.awt.image.*;
 import java.awt.*;
 import javax.imageio.*;
 
+import model.*;
+
 class Main {
     Scanner sc;
 

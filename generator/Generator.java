@@ -3,6 +3,8 @@ package generator;
 import java.io.*;
 import java.util.*;
 
+import model.*;
+
 class Generator {
 
     public final static int DEFAULT_MAX_OFFSET = 100000;
