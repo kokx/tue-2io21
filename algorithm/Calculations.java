@@ -11,6 +11,9 @@ import model.*;
 public class Calculations
 {
 
+    public final static int DISTANCE_EUCLIDIAN = 2;
+    public final static int DISTANCE_MANHATTAN = 1;
+
 	/**
 	 * @param p: Point from which we want the distance to another point
 	 * @param number: The number'th closest point to p.
