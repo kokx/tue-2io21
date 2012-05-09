@@ -65,7 +65,7 @@ public class Field
         return points.containsKey(getKey(x, y));
     }
 
-    private long getKey(int x, int y)
+    public long getKey(int x, int y)
     {
         long key = x;
         key = key << 32;
