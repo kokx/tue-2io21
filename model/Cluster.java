@@ -2,13 +2,12 @@ package model;
 
 import java.util.ArrayList;
 
-import algorithm.*;
+import algorithm.Calculations;
 
 
 public class Cluster {
 	private ArrayList<Point> points = new ArrayList<Point>();
 	private int clusterId;
-	private double quality;
 	private double scatter;
 	private Point centroid;
 	
@@ -18,14 +17,6 @@ public class Cluster {
 	
 	public void addPoint(Point point) {
 		points.add(point);
-	}
-	
-	public void setQuality(double score) {
-		quality = score;
-	}
-	
-	public double getQuality() {
-		return quality;
 	}
 	
 	public int getId() {
@@ -61,7 +52,4 @@ public class Cluster {
         return centroid;
 	}
 	
-	public ArrayList<Point> getPoints() {
-		return points;
-	}
 }

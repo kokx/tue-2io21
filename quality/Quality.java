@@ -1,21 +1,21 @@
 package quality;
 
 import java.util.ArrayList;
-import algorithm.*;
-
-import model.*;
+import algorithm.Calculations;
+import model.Point;
+import model.Cluster;
 
 
 public class Quality {
-	ArrayList<Cluster> clusters;
-	double score;
+	private ArrayList<Cluster> clusters;
+	private double score;
 	
-	Quality(ArrayList<Cluster> inputList, int mode) {
-		clusters = inputList;
+	public Quality(ArrayList<Cluster> input, int mode) {
+		clusters = input;
 		calcQualityIndex(mode);
 	}
 	
-	public void calcQualityIndex(int mode) {
+	private void calcQualityIndex(int mode) {
 		ArrayList<Double> ScatterDistenceFactors = new ArrayList<Double>();
 		double quality = 0;
 		for (Cluster cluster : clusters) {
