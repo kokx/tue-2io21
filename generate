@@ -2,7 +2,7 @@
 
 # first compile all files
 
-javac Main.java algorithm/*.java generator/*.java model/*.java quality/*.java visualize/*.java
+./compile
 
 java generator.Main > input/$1
 

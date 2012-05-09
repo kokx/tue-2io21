@@ -55,6 +55,11 @@ public class Field
         return points.values();
     }
 
+    public TreeMap<Long,Point> getPointsMap()
+    {
+        return points;
+    }
+
     public Point getPoint(int x, int y)
     {
         return points.get(getKey(x, y));
@@ -65,7 +70,7 @@ public class Field
         return points.containsKey(getKey(x, y));
     }
 
-    private long getKey(int x, int y)
+    public long getKey(int x, int y)
     {
         long key = x;
         key = key << 32;
