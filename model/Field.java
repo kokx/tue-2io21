@@ -55,6 +55,11 @@ public class Field
         return points.values();
     }
 
+    public TreeMap<Long,Point> getPointsMap()
+    {
+        return points;
+    }
+
     public Point getPoint(int x, int y)
     {
         return points.get(getKey(x, y));
