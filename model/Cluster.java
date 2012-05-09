@@ -2,13 +2,12 @@ package model;
 
 import java.util.ArrayList;
 
-import algorithm.*;
+import algorithm.Calculations;
 
 
 public class Cluster {
 	private ArrayList<Point> points = new ArrayList<Point>();
 	private int clusterId;
-	private double quality;
 	private double scatter;
 	private Point centroid;
 	
@@ -20,19 +19,10 @@ public class Cluster {
 		points.add(point);
 	}
 	
-	public void setQuality(double score) {
-		quality = score;
-	}
-	
-	public double getQuality() {
-		return quality;
-	}
-	
 	public int getId() {
 		return clusterId;
 	}
 	
-	//TODO: fix ability to call distence in algorithm class.
 	public double getScatter(int mode) {
 		if (scatter == 0) {
 			double totalscore = 0;
@@ -62,7 +52,4 @@ public class Cluster {
         return centroid;
 	}
 	
-	public ArrayList<Point> getPoints() {
-		return points;
-	}
 }

@@ -1,26 +1,21 @@
 package quality;
 
-import java.io.*;
-import java.util.*;
+import java.util.Scanner;
+import java.util.ArrayList;
 
 import model.*;
 
 class Main {
-    private Scanner sc;
+    private Scanner sc = new Scanner(System.in);
     private ArrayList<Cluster> clusters = new ArrayList<Cluster>();
-
-    public Main()
-    {
-        sc = new Scanner(System.in);
-    }
+	
+	public final static int DISTANCE_METRIC = 2;
     
-    //TODO: fix skip of input,termination
     void run() {
-		processOneInput();
     	while (sc.hasNextInt()) {
     		processOneInput();
     	}
-    	Quality result = new Quality(clusters, 2);
+    	Quality result = new Quality(clusters, DISTANCE_METRIC);
     	System.out.println(result.getScore());
     }
     
@@ -41,12 +36,10 @@ class Main {
     
     private boolean checkClusterExists(int IDtoCheck) {
     	boolean exists = false;
-    	if (clusters != null) {
-    		for (Cluster cluster : clusters) {
-    			if (cluster.getId() == IDtoCheck) {
-    				exists = true;
-    				return exists;
-    			}
+    	for (Cluster cluster : clusters) {
+    		if (cluster.getId() == IDtoCheck) {
+    			exists = true;
+    			return exists;
     		}
     	}
     	return exists;
