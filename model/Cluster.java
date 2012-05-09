@@ -1,14 +1,11 @@
 package model;
 
-import java.util.ArrayList;
-
+import java.util.*;
 import algorithm.*;
-
 
 public class Cluster {
 	private ArrayList<Point> points = new ArrayList<Point>();
 	private int clusterId;
-	private double quality;
 	private double scatter;
 	private Point centroid;
 	
@@ -20,25 +17,18 @@ public class Cluster {
 		points.add(point);
 	}
 	
-	public void setQuality(double score) {
-		quality = score;
-	}
-	
-	public double getQuality() {
-		return quality;
-	}
-	
 	public int getId() {
 		return clusterId;
 	}
-	
+
+	//TODO: review
 	public double getScatter(int mode) {
 		if (scatter == 0) {
 			double totalscore = 0;
 			for (Point point : points) {
 				totalscore += Calculations.distance(centroid, point, mode);
 			}
-			scatter = totalscore * Math.pow(this.size(), 1/mode);
+			scatter = Math.pow(1/this.size(), 1/mode) * math.pow(totalscore, 1/mode;
 		}
 		return scatter;
 	}
@@ -51,7 +41,6 @@ public class Cluster {
         if (centroid == null) {
             long totalx = 0;
             long totaly = 0;
-
             for (Point point : points) {
                 totalx += point.getX();
                 totaly += point.getY();

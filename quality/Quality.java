@@ -1,55 +1,53 @@
 package quality;
 
-import java.util.ArrayList;
+import java.util.*;
 import algorithm.*;
-
 import model.*;
 
 
 public class Quality {
-	ArrayList<Cluster> clusters;
-	double score;
+	private ArrayList<Cluster> clusters;
+	private double score;
 	
-	Quality(ArrayList<Cluster> inputList, int mode) {
-		clusters = inputList;
+	Quality(ArrayList<Cluster> inputs, int mode) {
+		clusters = inputs;
 		calcQualityIndex(mode);
 	}
 	
 	public void calcQualityIndex(int mode) {
-		ArrayList<Double> ScatterDistenceFactors = new ArrayList<Double>();
-		double quality = 0;
+		score = totalScatterIndex(mode) / (clusters.size()-1);
+	}
+	
+	private double totalScatterIndex(int mode) {
+		double total;
 		for (Cluster cluster : clusters) {
 			if (cluster.getId() != 0) {
-				double tempdouble = calcMaxScatterDistenceFactor(cluster, mode);
-				ScatterDistenceFactors.add(tempdouble);
+				total += calcMaxScatterDistenceFactor(cluster, mode)
 			}
 		}
-		for (double factor : ScatterDistenceFactors) {
-			quality += factor;
-		}
-		quality = quality / ScatterDistenceFactors.size();
-		score = quality;
+		return total;
 	}
-		
-	private double calcMaxScatterDistenceFactor(Cluster cluster, int mode) {
+	
+	//TODO: review
+	private double maxScatterDistenceFactor(Cluster cluster, int mode) {
 		double result = 0;
-		ArrayList<Double> temps = new ArrayList<Double>();
-		for (Cluster othercluster : clusters) {
-			double temp;
-			if (othercluster.getId() != 0 && othercluster != cluster) {
-				temp = Calculations.distance(cluster.getCentroid(), othercluster.getCentroid(), mode);
-				temp = (cluster.getScatter(mode) + othercluster.getScatter(mode)) / temp;
-				temps.add(temp);
-			}
-		}
-		for (double temp : temps) {
-			if (temp > result) {
-				result = temp;
+		for (Cluster otherCluster : clusters) {
+			if (otherCluster.getId() != 0 && otherCluster != cluster && scatterDistenceFactor(cluster, otherCluster, mode > result)) {
+				result = scatterDistenceFactor(cluster, otherCluster, mode;
 			}
 		}
 		return result;
 	}
-
+	
+	//TODO: review
+	private double scatterDistenceFactor(Cluster cluster, Cluster otherCluster, int mode) {
+		return (cluster.getScatter() + otherCluster.getScatter()) / entroidDistence(cluster, otherCluster, mode);
+	}
+	
+	//TODO: review
+	private double centroidDistence(Cluster cluster, Cluster otherCluster, int mode) {
+		return Math.pow(2 * calculations.distence(cluster, othercluster, mode) , 1/mode);
+	}
     
     public double getScore() {
     	return score;

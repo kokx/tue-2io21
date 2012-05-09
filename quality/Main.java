@@ -1,56 +1,35 @@
 package quality;
 
-import java.io.*;
 import java.util.*;
-
 import model.*;
 
 class Main {
-    private Scanner sc;
+    private Scanner sc = new Scanner(System.in);
     private ArrayList<Cluster> clusters = new ArrayList<Cluster>();
 	
 	public final static int DISTANCE_METRIC = 2;
-
-    public Main()
-    {
-        sc = new Scanner(System.in);
-    }
     
     void run() {
-		processOneInput();
     	while (sc.hasNextInt()) {
-    		processOneInput();
+    		processOneInput(sc.nextInt(), sc.nextInt(), sc.nextInt());
     	}
-    	Quality result = new Quality(clusters, DISTANCE_METRIC);
-    	System.out.println(result.getScore());
+		System.out.println(new Quality(clusters, DISTANCE_METRIC).getScore())
     }
-    
-    private void processOneInput() {
-    	int xtemp, ytemp, idtemp;
-		xtemp = sc.nextInt();
-		ytemp = sc.nextInt();
-		idtemp = sc.nextInt();
-		Point newPoint = new Point(xtemp, ytemp, idtemp);
-		if (!checkClusterExists(idtemp)) {
-			Cluster newCluster = new Cluster(idtemp);
-			clusters.add(newCluster);
-			newCluster.addPoint(newPoint);
-		} else {
-			getCluster(idtemp).addPoint(newPoint);
+	
+	private void processOneInput(int x, int y, int id) {
+		if (!checkClusterExists(id)) {
+			clusters.add(new Cluster(id));
 		}
-    }
+		getCluster(id).addPoint(new Point(x, y, id));
+	}
     
     private boolean checkClusterExists(int IDtoCheck) {
-    	boolean exists = false;
-    	if (clusters != null) {
-    		for (Cluster cluster : clusters) {
-    			if (cluster.getId() == IDtoCheck) {
-    				exists = true;
-    				return exists;
-    			}
+    	for (Cluster cluster : clusters) {
+    		if (cluster.getId() == IDtoCheck) {
+    			return true;
     		}
     	}
-    	return exists;
+    	return false;
     }
     
     private Cluster getCluster(int clusterID) {
