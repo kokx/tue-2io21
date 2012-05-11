@@ -24,7 +24,6 @@ class Main {
 	 */
     void run() {
     	Scanner sc = new Scanner(System.in);
-    	processOneInput(sc.nextInt(), sc.nextInt(), sc.nextInt());
     	while (sc.hasNextInt()) {
     		processOneInput(sc.nextInt(), sc.nextInt(), sc.nextInt());
     	}
