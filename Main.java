@@ -2,13 +2,33 @@ import java.io.*;
 import java.util.*;
 
 import model.*;
+import algorithm.*;
 
 class Main {
     Scanner sc;
+    Algorithm algo;
 
     public Main()
     {
         sc = new Scanner(System.in);
+
+        algo = new Optics();
+    }
+
+    /**
+     * Read the points
+     *
+     * @param n Number of points to read
+     */
+    Field read(int n)
+    {
+        Field f = new Field();
+
+        for (int i = 0; i < n; i++) {
+            f.addPoint(new Point(sc.nextInt(), sc.nextInt(), 0));
+        }
+
+        return f;
     }
 
     void run()
@@ -25,19 +45,14 @@ class Main {
         }
 
         int n = sc.nextInt();
+
         sc.next(); // points
 
-        int[] points_x = new int[n];
-        int[] points_y = new int[n];
+        algo.setField(read(n));
 
-        for (int i = 0; i < n; i++) {
-            points_x[i] = sc.nextInt();
-            points_y[i] = sc.nextInt();
-        }
+        algo.findParameters(ci, cj, n);
 
-        for (int i = 0; i < n; i++) {
-            System.out.println(points_x[i] + " " + points_y[i] + " " + (i % cj));
-        }
+        algo.run();
     }
 
     public static void main(String args[])

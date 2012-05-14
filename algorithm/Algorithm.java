@@ -12,10 +12,26 @@ public abstract class Algorithm
 
     /**
      * Constructor.
-     *
-     * @param field
      */
-    public Algorithm(Field field)
+    public Algorithm()
+    {
+    }
+
+    /**
+     * Find the parameters
+     *
+     * @param ci Minimum number of clusters
+     * @param cj Maximum number of clusters
+     * @param n Number of points
+     */
+    public abstract void findParameters(int ci, int cj, int n);
+
+    /**
+     * Set the field.
+     *
+     * @param field Field
+     */
+    public void setField(Field field)
     {
         this.field = field;
     }

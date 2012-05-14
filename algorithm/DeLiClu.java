@@ -10,12 +10,21 @@ public class DeLiClu extends Algorithm
 
     /**
      * Constructor.
-     *
-     * @param field
      */
-    public DeLiClu(Field field)
+    public DeLiClu()
     {
-        super(field);
+        super();
+    }
+
+    /**
+     * Find the parameters
+     *
+     * @param ci Minimum number of clusters
+     * @param cj Maximum number of clusters
+     * @param n Number of points
+     */
+    public void findParameters(int ci, int cj, int n)
+    {
     }
 
     public void run()

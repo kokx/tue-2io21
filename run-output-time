@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# first compile all files
+
+./compile
+
+time (cat $1 | java Main)

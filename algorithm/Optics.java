@@ -13,7 +13,7 @@ public class Optics extends Algorithm
 {
 
     public final static double UNDEFINED = Double.POSITIVE_INFINITY;
-    public final static int DISTANCE_METRIC = Calculations.DISTANCE_EUCLIDIAN;
+    public final static int DISTANCE_METRIC = Calculations.DISTANCE_MANHATTAN;
 
     /**
      * Seeds queue.
@@ -28,23 +28,35 @@ public class Optics extends Algorithm
     /**
      * Parameters.
      */
-    int epsilon;
+    double epsilon;
     int minPts;
+
 
     /**
      * Constructor.
-     *
-     * @param field
      */
-    public Optics(Field field, int epsilon, int minPts)
+    public Optics()
     {
-        super(field);
-        this.epsilon = epsilon;
-        this.minPts = minPts;
+        super();
+    }
+
+    /**
+     * Find the parameters
+     *
+     * @param ci Minimum number of clusters
+     * @param cj Maximum number of clusters
+     * @param n Number of points
+     */
+    public void findParameters(int ci, int cj, int n)
+    {
+        this.epsilon = 10000.0;
+        this.minPts = 300;
     }
 
     public void run()
     {
+        points = new TreeMap<Long,OpticsPoint>();
+
         for (Point p : field.getAllPoints()) {
             OpticsPoint op = new OpticsPoint(p);
             points.put(op.getKey(), op);
@@ -68,7 +80,7 @@ public class Optics extends Algorithm
         Pair<List<PrioPair<OpticsPoint,Double>>, List<PrioPair<OpticsPoint,Double>>> nn = getNeighbours(p);
         List<PrioPair<OpticsPoint,Double>> N = nn.getV();
 
-        // TODO output p to the ordered list
+        write(p);
         
         if (coreDistance(N, p) != UNDEFINED) {
             update(N, p);
@@ -80,7 +92,7 @@ public class Optics extends Algorithm
                 List<PrioPair<OpticsPoint,Double>> N_ = nn_.getV();
                 q.process();
 
-                // TODO output q to the ordered list
+                write(q);
                 
                 if (coreDistance(N, q) != UNDEFINED) {
                     update(N_, q);
@@ -161,6 +173,12 @@ public class Optics extends Algorithm
                 }
             }
         }
+    }
+
+    void write(OpticsPoint op)
+    {
+        Point p = op.getPoint();
+        //System.out.println("X: " + p.getX() + " Y: " + p.getY() + " Reach: " + op.getReachabilityDistance());
     }
 
     /**
@@ -252,7 +270,7 @@ public class Optics extends Algorithm
         }
     }
 
-    class PrioPair<T,V extends Comparable<V>> implements Comparable<V>
+    class PrioPair<T,V extends Comparable<V>> implements Comparable<PrioPair<T,V>>
     {
         T t;
         V v;
@@ -273,10 +291,10 @@ public class Optics extends Algorithm
             return v;
         }
 
-        public int compareTo(V c)
+        public int compareTo(PrioPair<T,V> c)
         {
             // to reverse the priority queue
-            return v.compareTo(c) * -1;
+            return v.compareTo(c.getV()) * -1;
         }
     }
 }
