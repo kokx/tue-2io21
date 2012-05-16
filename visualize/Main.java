@@ -13,7 +13,7 @@ class Main {
     BufferedImage img;
 
     public final static long MAX_SIZE = 750;
-    public final static double SCALE_POINT = 1.0;
+    public final static double SCALE_POINT = 2.0;
     public final static boolean ALL_BLACK = false;
 
     long min_x;

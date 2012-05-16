@@ -13,6 +13,7 @@ public class Calculations
 
     public final static int DISTANCE_EUCLIDIAN = 2;
     public final static int DISTANCE_MANHATTAN = 1;
+    public final static int DISTANCE_EUCLIDIAN_SQ = -1;
 
 	/**
 	 * @param p: Point from which we want the distance to another point
@@ -54,7 +55,9 @@ public class Calculations
         long dy = (long) Math.abs(destPoint.getY() - sourcePoint.getY());
 
         switch (m) {
-            case 1:
+            case DISTANCE_EUCLIDIAN_SQ:
+                return dx*dx + dy*dy;
+            case DISTANCE_MANHATTAN:
                 return (double) (dx + dy);
             default:
                 return Math.pow(Math.pow(dx, m) + Math.pow(dy, m), 1.0/m);
