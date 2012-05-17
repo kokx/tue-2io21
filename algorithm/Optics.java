@@ -18,8 +18,6 @@ public class Optics extends Algorithm
     // but instead squares the epsilon parameter. Thus it is a lot faster.
     public final static int DISTANCE_METRIC = Calculations.DISTANCE_MANHATTAN;
 
-    public final static boolean PRINT_REACHABILITY = false;
-
     /**
      * Seeds queue.
      */
@@ -118,6 +116,9 @@ public class Optics extends Algorithm
             clusters[i] = new ArrayList<AlgorithmPoint>();
         }
 
+        double reachabilityAverage = 0;
+        int count = 0;
+
         // loop through all points and check their cluster
         for (AlgorithmPoint p : reachabilityPlot) {
             if (p.getCluster() > 0) {
@@ -125,9 +126,14 @@ public class Optics extends Algorithm
             } else {
                 p.setCluster(0);
             }
+            // reachability average
+            count++;
+            double scale = 1.0 / count;
+
+            reachabilityAverage = scale * p.getReachabilityDistance() + (1 - scale) * reachabilityAverage;
         }
 
-        int count = 0;
+        count = 0;
 
         // merge clusters that are too small
         for (ArrayList<AlgorithmPoint> cluster : clusters) {
@@ -135,8 +141,23 @@ public class Optics extends Algorithm
                 count++;
             }
             for (AlgorithmPoint p : cluster) {
-                p.setCluster(count);
+                if (p.getReachabilityDistance() > reachabilityAverage * 1.75) {
+                    // this is noise
+                    p.setCluster(0);
+                } else {
+                    p.setCluster(count);
+                }
+                 
+                // now recalculate the reachabilityAverage
+                reachabilityAverage = 0.005 * p.getReachabilityDistance() + 0.995 * reachabilityAverage;
             }
+        }
+    }
+
+    public void printReachability()
+    {
+        for (AlgorithmPoint p : reachabilityPlot) {
+            System.out.println(p.getCluster() + " " + p.getReachabilityDistance());
         }
     }
 
@@ -253,9 +274,6 @@ public class Optics extends Algorithm
     void write(AlgorithmPoint op)
     {
         if (op.getReachabilityDistance() != UNDEFINED) {
-            if (PRINT_REACHABILITY) {
-                System.out.println(op.getReachabilityDistance());
-            }
             reachabilityPlot.add(op);
         }
     }

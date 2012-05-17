@@ -57,6 +57,11 @@ public abstract class Algorithm
     }
 
     /**
+     * Print reachability distances.
+     */
+    public abstract void printReachability();
+
+    /**
      * Cluster the tree.
      */
     public void cluster_tree(Node<AlgorithmPoint> N, Node<AlgorithmPoint> parent, PriorityQueue<AlgorithmPoint> L)

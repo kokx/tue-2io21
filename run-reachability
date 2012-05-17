@@ -4,7 +4,7 @@
 
 ./compile
 
-cat $1 | java Main > $1.out
+cat $1 | java Main reach > $1.out
 
 # visualization
 

@@ -25,10 +25,16 @@ public class DeLiClu extends Algorithm
      */
     public void findParameters(int ci, int cj, int n)
     {
+        // TODO: Implement this
+    }
+
+    public void printReachability()
+    {
+        // TODO: Implement this
     }
 
     public void run()
     {
-        // magic
+        // TODO: Implement this
     }
 }

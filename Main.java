@@ -54,7 +54,7 @@ class Main {
         }
     }
 
-    void run()
+    void run(boolean reachability)
     {
         // read 'find $C_i$ to $C_j$ clusters'
         // read '$n$ points'
@@ -79,11 +79,19 @@ class Main {
 
         algo.run();
 
-        print(f, cj);
+        if (reachability) {
+            algo.printReachability();
+        } else {
+            print(f, cj);
+        }
     }
 
     public static void main(String args[])
     {
-        new Main().run();
+        boolean reach = false;
+        if (args.length >= 1 && "reach".equals(args[0])) {
+            reach = true;
+        }
+        new Main().run(reach);
     }
 }

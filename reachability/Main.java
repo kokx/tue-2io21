@@ -18,6 +18,7 @@ class Main {
     double scale_x;
     double scale_y;
 
+    ArrayList<Integer> cluster = new ArrayList<Integer>();
     ArrayList<Double> reachability = new ArrayList<Double>();
 
     public Main()
@@ -29,7 +30,8 @@ class Main {
     {
         max = 0;
 
-        for (int i = 0; sc.hasNextDouble(); i++) {
+        for (int i = 0; sc.hasNextInt(); i++) {
+            cluster.add(sc.nextInt());
             reachability.add(sc.nextDouble());
 
             if (reachability.get(i) > max) {
@@ -58,7 +60,7 @@ class Main {
             double distance = (double) reachability.get(i);
             int x = (int) (i * scale_x);
             int y = (int) (distance * scale_y);
-            g.setColor(Color.BLACK);
+            g.setColor(getColor(cluster.get(i)));
 
             g.drawLine(x, MAX_SIZE - y, x, MAX_SIZE);
         }
@@ -68,6 +70,28 @@ class Main {
             ImageIO.write(img, "png", outputfile);
         } catch (IOException e) {
             System.out.println("Something went wrong");
+        }
+    }
+
+    Color getColor(int cluster)
+    {
+        if (cluster == 0) {
+            return Color.BLACK;
+        }
+
+        switch (cluster % 5) {
+            case 0:
+                return Color.PINK;
+            case 1:
+                return Color.ORANGE;
+            case 2:
+                return Color.GREEN;
+            case 3:
+                return Color.YELLOW;
+            case 4:
+                return Color.CYAN;
+            default:
+                return Color.GRAY;
         }
     }
 
