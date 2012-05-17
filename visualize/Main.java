@@ -148,11 +148,11 @@ class Main {
 
         switch (cluster % 5) {
             case 0:
-                return Color.GREEN;
+                return Color.PINK;
             case 1:
                 return Color.ORANGE;
             case 2:
-                return Color.PINK;
+                return Color.GREEN;
             case 3:
                 return Color.YELLOW;
             case 4:

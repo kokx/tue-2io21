@@ -1,7 +1,12 @@
 #!/bin/sh
 
 # first create the staging directory
-mkdir staging
+
+if [ -d "staging" ]; then
+    rm -r staging/*
+else
+    mkdir staging
+fi
 
 # do some ugly sed scripts to make everything peach-ready
 
@@ -14,6 +19,8 @@ do
         cat $f | sed -f peach-prepare.sed > staging/$(basename $f)
     done
 done
+
+cat Main.java | sed -f peach-prepare.sed > staging/Main.java
 
 #sed -e peach-prepare.sed algorithm/Algorithm.java
 

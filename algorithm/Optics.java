@@ -42,6 +42,13 @@ public class Optics extends Algorithm
     int minPts;
 
     /**
+     * ci: mininmum of found clusters
+     * cj: maximum of found clusters
+     */
+    int ci;
+    int cj;
+
+    /**
      * Cluster ID.
      */
     int clusterId;
@@ -64,6 +71,9 @@ public class Optics extends Algorithm
      */
     public void findParameters(int ci, int cj, int n)
     {
+        this.ci = ci;
+        this.cj = cj;
+        
         this.epsilon = 10;
         this.minPts = 10;
 
@@ -108,31 +118,24 @@ public class Optics extends Algorithm
             clusters[i] = new ArrayList<AlgorithmPoint>();
         }
 
-        int unkown = 0;
-        
         // loop through all points and check their cluster
         for (AlgorithmPoint p : reachabilityPlot) {
             if (p.getCluster() > 0) {
                 clusters[p.getCluster() - 1].add(p);
             } else {
                 p.setCluster(0);
-                unkown++;
             }
         }
 
         int count = 0;
 
-        // reassign the cluster numbers
+        // merge clusters that are too small
         for (ArrayList<AlgorithmPoint> cluster : clusters) {
             if (cluster.size() >= minPts) {
                 count++;
-                for (AlgorithmPoint p : cluster) {
-                    p.setCluster(count + 1);
-                }
-            } else {
-                for (AlgorithmPoint p : cluster) {
-                    p.setCluster(0);
-                }
+            }
+            for (AlgorithmPoint p : cluster) {
+                p.setCluster(count);
             }
         }
     }

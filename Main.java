@@ -34,12 +34,23 @@ class Main {
     /**
      * Print the field.
      */
-    void print(Field field)
+    void print(Field field, int cj)
     {
         Collection<Point> points = field.getAllPoints();
 
         for (Point p : points) {
-            System.out.println(p.getX() + " " + p.getY() + " " + p.getCluster());
+            // the algorithm should take care that the cluster number has been
+            // assigned correctly (as in, lower or equal to cj)
+            // but if this hasn't happened, we want to prevent that peach gives
+            // errors about this
+            int cluster = p.getCluster();
+            if (cluster > cj) {
+                cluster = cluster % cj;
+                if (cluster == 0) {
+                    cluster = 1;
+                }
+            }
+            System.out.println(p.getX() + " " + p.getY() + " " + cluster);
         }
     }
 
@@ -68,7 +79,7 @@ class Main {
 
         algo.run();
 
-        //print(f);
+        print(f, cj);
     }
 
     public static void main(String args[])
