@@ -68,7 +68,7 @@ class Main {
 
         algo.run();
 
-        print(f);
+        //print(f);
     }
 
     public static void main(String args[])

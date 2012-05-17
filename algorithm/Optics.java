@@ -16,7 +16,9 @@ public class Optics extends Algorithm
     // DISTANCE_MANHATTAN, DISTANCE_EUCLIDIAN or DISTANCE_EUCLIDIAN_SQ
     // Euclidian Sq is the same as Euclidian, but does not take the square root,
     // but instead squares the epsilon parameter. Thus it is a lot faster.
-    public final static int DISTANCE_METRIC = Calculations.DISTANCE_EUCLIDIAN_SQ;
+    public final static int DISTANCE_METRIC = Calculations.DISTANCE_MANHATTAN;
+
+    public final static boolean PRINT_REACHABILITY = false;
 
     /**
      * Seeds queue.
@@ -26,7 +28,7 @@ public class Optics extends Algorithm
     /**
      * Map of points.
      */
-    TreeMap<Long, AlgorithmPoint> points;
+    ArrayList<AlgorithmPoint> points;
 
     /**
      * Reachability plot
@@ -62,8 +64,8 @@ public class Optics extends Algorithm
      */
     public void findParameters(int ci, int cj, int n)
     {
-        this.epsilon = 1000.0;
-        this.minPts = 50;
+        this.epsilon = 10;
+        this.minPts = 10;
 
         if (DISTANCE_METRIC == Calculations.DISTANCE_EUCLIDIAN_SQ) {
             epsilon = epsilon * epsilon;
@@ -73,7 +75,7 @@ public class Optics extends Algorithm
     @SuppressWarnings({"unchecked"})
     public void run()
     {
-        points = new TreeMap<Long,AlgorithmPoint>();
+        points = new ArrayList<AlgorithmPoint>();
 
         reachabilityPlot = new ArrayList<AlgorithmPoint>(field.size());
 
@@ -81,13 +83,13 @@ public class Optics extends Algorithm
 
         for (Point p : field.getAllPoints()) {
             AlgorithmPoint op = new AlgorithmPoint(p);
-            points.put(op.getKey(), op);
+            points.add(op);
         }
 
         // initialize the Priority Queue
         seeds = new PriorityQueue<AlgorithmPoint>();
 
-        for (AlgorithmPoint p : points.values()) {
+        for (AlgorithmPoint p : points) {
             if (p.isProcessed()) {
                 continue;
             }
@@ -187,7 +189,11 @@ public class Optics extends Algorithm
 
         PriorityQueue<PrioPair<AlgorithmPoint,Double>> pq = new PriorityQueue<PrioPair<AlgorithmPoint,Double>>();
 
-        for (AlgorithmPoint q : points.values()) {
+        for (AlgorithmPoint q : points) {
+            if (q == p) {
+                continue;
+            }
+
             double dist = Calculations.distance(p.getPoint(), q.getPoint(), DISTANCE_METRIC);
 
             PrioPair<AlgorithmPoint,Double> pair = new PrioPair<AlgorithmPoint,Double>(q, dist);
@@ -226,6 +232,7 @@ public class Optics extends Algorithm
             AlgorithmPoint o = pair.getT();
             if (!pair.getT().isProcessed()) {
                 double newReachabilityDistance = Math.max(coredist, Calculations.distance(o.getPoint(), p.getPoint(), DISTANCE_METRIC));
+                //System.out.println("rea: " + newReachabilityDistance);
 
                 if (o.getReachabilityDistance() == UNDEFINED) {
                     o.setReachabilityDistance(newReachabilityDistance);
@@ -242,7 +249,12 @@ public class Optics extends Algorithm
 
     void write(AlgorithmPoint op)
     {
-        reachabilityPlot.add(op);
+        if (op.getReachabilityDistance() != UNDEFINED) {
+            if (PRINT_REACHABILITY) {
+                System.out.println(op.getReachabilityDistance());
+            }
+            reachabilityPlot.add(op);
+        }
     }
 
     class Pair<T,V>

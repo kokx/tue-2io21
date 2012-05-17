@@ -56,7 +56,8 @@ public class Calculations
 
         switch (m) {
             case DISTANCE_EUCLIDIAN_SQ:
-                return dx*dx + dy*dy;
+                //System.out.println("dx: " + dx + " dy: " + dy + " dist: " + (dx*dx + dy*dy));
+                return (double) (dx*dx + dy*dy);
             case DISTANCE_MANHATTAN:
                 return (double) (dx + dy);
             default:
