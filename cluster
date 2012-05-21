@@ -1,0 +1,103 @@
+#!/bin/sh
+
+#########
+# USAGE #
+#########
+# The program always makes normal output first, and visualizes it, unless it
+# is specified otherwise
+# Parameters:
+#   -r      Reachability plot
+#   -R      Reachability plot, but don't run the normal algorithm
+#   -q      Quality measure
+#   -t      Time algorithm (cannot be used in combination with -R)
+
+# functions
+
+message() {
+    echo "$@" 1>&2
+}
+
+compile() {
+    echo "Compiling............."
+    javac Main.java algorithm/*.java generator/*.java model/*.java quality/*.java visualize/*.java reachability/*.java
+}
+
+run()
+{
+    export reach=""
+
+    if [ $1 ]; then
+        if [ $1 = "-r" ]; then
+            export reach="reach"
+            message "Reachability plot....."
+        else
+            message "Running..............."
+        fi
+    else
+        message "Running..............."
+    fi
+    java Main $reach
+}
+
+run_file()
+{
+    cat $1 | run $2
+}
+
+time_run_file()
+{
+    time run_file $1 $2
+}
+
+# now we get to the interesting stuff
+
+# first compile all files
+compile
+
+export file=""
+
+export r=""
+export R=""
+export q=""
+export t=""
+
+for arg in $@
+do
+    case $arg in
+        -r)
+            export r="t"
+            ;;
+        -R)
+            export R="t"
+            ;;
+        -q)
+            export q="t"
+            ;;
+        -t)
+            export t="t"
+            ;;
+        *)
+            file=$arg
+            ;;
+    esac
+done
+
+# TODO: Implement quality measure
+if [ "$R" = "t" ]; then
+    run_file $file -r | java reachability.Main
+    xdg-open reach.png
+else
+    # run and visualize
+    if [ "$t" = "t" ]; then
+        time_run_file $file | tee $file.out | java visualize.Main
+    else
+        run_file $file | tee $file.out | java visualize.Main
+    fi
+    xdg-open output.png
+
+    # run and plot reachability
+    if [ "$r" = "t" ]; then
+        run_file $file -r | java reachability.Main
+    fi
+    xdg-open reach.png
+fi
