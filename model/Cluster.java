@@ -14,16 +14,21 @@ public class Cluster {
 	 * List containing all the Points in this Cluster
 	 */
 	private ArrayList<Point> points = new ArrayList<Point>();
+
 	/**
 	 * ID number to identify this Cluster.
 	 */
 	private int clusterId;
+
 	/**
-	 *TODO:this
+	 * Scatter score of this Cluster.
 	 */
 	private double scatter;
+
 	/**
-	 * A point that defines the center of the Cluster. Centroid is not part of the points list. The Centroid is assigned to the -1(= nonexist) Cluster because it is not an actual point in the database.
+	 * A point that defines the center of the Cluster.
+     *
+     * Centroid is not part of the points list. The Centroid is assigned to the -1(= nonexist) Cluster because it is not an actual point in the database.
 	 */
 	private Point centroid;
 	
@@ -83,7 +88,7 @@ public class Cluster {
 	/**
 	 * Returns the Centroid Point of the Cluster, if the Centroid doesn't exist yet it is also generated.
 	 * 
-	 * @return Centroid of this Cluster
+	 * @return the cluster's centroid
 	 */
 	public Point getCentroid() {
         if (centroid == null) {
@@ -101,7 +106,7 @@ public class Cluster {
 	/**
 	 * Returns the ArrayList containing the Points of this Cluster.
 	 * 
-	 * @return ArrayList of the Points in this Cluster
+	 * @return all the points in this cluster
 	 */
 	public ArrayList<Point> getPoints() {
 		return points;

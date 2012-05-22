@@ -71,6 +71,77 @@ public abstract class Algorithm
     }
 
     /**
+     * Cluster tree.
+     */
+    class ClusterNode
+    {
+        /**
+         * Children of this node.
+         */
+        ArrayList<ClusterNode> children = new ArrayList<ClusterNode>();
+
+        /**
+         * Points in this node.
+         */
+        Set<AlgorithmPoint> points = new HashSet<AlgorithmPoint>();
+
+        /**
+         * This node's parent.
+         */
+        ClusterNode parent;
+
+        /**
+         * Constructor.
+         *
+         * @param parent Parent of the created node
+         */
+        public ClusterNode(ClusterNode parent)
+        {
+            this.parent = parent;
+        }
+
+        /**
+         * Get the children.
+         *
+         * @return children
+         */
+        public ArrayList<ClusterNode> getChildren()
+        {
+            return children;
+        }
+
+        /**
+         * Get the parent.
+         *
+         * @return parent
+         */
+        public ClusterNode getParent()
+        {
+            return parent;
+        }
+
+        /**
+         * Add a child.
+         *
+         * @param child Child of the node.
+         */
+        public void addChild(ClusterNode child)
+        {
+            children.add(child);
+        }
+
+        /**
+         * Add a point.
+         *
+         * @param point Point of this node.
+         */
+        public void addPoint(AlgorithmPoint point)
+        {
+            points.add(point);
+        }
+    }
+
+    /**
      * Point for the algorithms.
      */
     class AlgorithmPoint implements Comparable<AlgorithmPoint>
