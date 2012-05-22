@@ -28,11 +28,6 @@ public class DeLiClu extends Algorithm
         // TODO: Implement this
     }
 
-    public void printReachability()
-    {
-        // TODO: Implement this
-    }
-
     public void run()
     {
         // TODO: Implement this

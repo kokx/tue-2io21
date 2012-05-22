@@ -19,7 +19,9 @@ message() {
 
 compile() {
     echo "Compiling............."
-    javac Main.java algorithm/*.java generator/*.java model/*.java quality/*.java visualize/*.java reachability/*.java
+    # first we remove all *.class files
+    rm -r *.class 2> /dev/null
+    javac -Xlint:unchecked Main.java algorithm/*.java generator/*.java model/*.java quality/*.java visualize/*.java reachability/*.java
 }
 
 run()
@@ -98,6 +100,6 @@ else
     # run and plot reachability
     if [ "$r" = "t" ]; then
         run_file $file -r | java reachability.Main
+        xdg-open reach.png
     fi
-    xdg-open reach.png
 fi

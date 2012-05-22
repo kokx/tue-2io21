@@ -29,11 +29,6 @@ public class Optics extends Algorithm
     ArrayList<AlgorithmPoint> points;
 
     /**
-     * Reachability plot
-     */
-    ArrayList<AlgorithmPoint> reachabilityPlot;
-
-    /**
      * Parameters.
      */
     double epsilon;
@@ -80,7 +75,6 @@ public class Optics extends Algorithm
         }
     }
 
-    @SuppressWarnings({"unchecked"})
     public void run()
     {
         points = new ArrayList<AlgorithmPoint>();
@@ -110,7 +104,16 @@ public class Optics extends Algorithm
 
         clusterId--;
 
-        // clusterId should now be the number of clusters
+        cluster();
+    }
+
+    /**
+     * TODO: Create a general method for this in Algorithm and use it.
+     */
+    @SuppressWarnings({"unchecked"})
+    public void cluster()
+    {
+        // clusterId is the number of clusters
         ArrayList<AlgorithmPoint> clusters[] = (ArrayList<AlgorithmPoint>[]) Array.newInstance(ArrayList.class, clusterId);
         for (int i = 0; i < clusterId; i++) {
             clusters[i] = new ArrayList<AlgorithmPoint>();
@@ -151,13 +154,6 @@ public class Optics extends Algorithm
                 // now recalculate the reachabilityAverage
                 reachabilityAverage = 0.005 * p.getReachabilityDistance() + 0.995 * reachabilityAverage;
             }
-        }
-    }
-
-    public void printReachability()
-    {
-        for (AlgorithmPoint p : reachabilityPlot) {
-            System.out.println(p.getCluster() + " " + p.getReachabilityDistance());
         }
     }
 
