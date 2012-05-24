@@ -69,6 +69,7 @@ public class Optics extends Algorithm
         
         this.epsilon = 10;
         this.minPts = 10;
+        this.minClusterSize = 10;
 
         if (DISTANCE_METRIC == Calculations.DISTANCE_EUCLIDIAN_SQ) {
             epsilon = epsilon * epsilon;
@@ -267,9 +268,13 @@ public class Optics extends Algorithm
         }
     }
 
+    /**
+     * Write.
+     */
     void write(AlgorithmPoint op)
     {
         if (op.getReachabilityDistance() != UNDEFINED) {
+            op.setX(reachabilityPlot.size());
             reachabilityPlot.add(op);
         }
     }
