@@ -17,6 +17,8 @@ public abstract class Algorithm
 
     /**
      * Treshold for determining if a local maxima is too similiar to its parent.
+     *
+     * A higher treshold means that the tree will have less levels.
      */
     public final static double SIMILARITY_TRESHOLD = 0.04;
 
@@ -25,6 +27,16 @@ public abstract class Algorithm
     protected Field field;
 
     protected int minClusterSize;
+
+    /**
+     * Mininmum of found clusters.
+     */
+    protected int ci;
+
+    /**
+     * Maximum of found clusters.
+     */
+    protected int cj;
 
     /**
      * Reachability plot
@@ -47,7 +59,11 @@ public abstract class Algorithm
      * @param cj Maximum number of clusters
      * @param n Number of points
      */
-    public abstract void findParameters(int ci, int cj, int n);
+    public void findParameters(int ci, int cj, int n)
+    {
+        this.ci = ci;
+        this.cj = cj;
+    }
 
     /**
      * Run the algorithm.
@@ -71,6 +87,112 @@ public abstract class Algorithm
      */
     public void cluster()
     {
+        // first make the root node
+        ClusterNode root = new ClusterNode(null);
+
+        root.addPoints(reachabilityPlot);
+
+        PriorityQueue<AlgorithmPoint> localMaxima = findLocalMaxima();
+
+        clusterTree(root, null, localMaxima);
+
+        Set<ClusterNode> clusters = extractClusters(root);
+
+        int id = 1;
+
+        for (ClusterNode cluster : clusters) {
+            for (AlgorithmPoint p : cluster.getPoints()) {
+                if (p.getCluster() == 0) {
+                    p.setCluster(id);
+                }
+            }
+
+            id++;
+        }
+    }
+
+    protected int count(ClusterNode c)
+    {
+        int num = 1;
+
+        for (ClusterNode child : c.getChildren()) {
+            num += count(child);
+        }
+
+        return num;
+    }
+
+    /**
+     * Extract clusters from the tree.
+     *
+     * @param tree Root node of the tree.
+     */
+    protected Set<ClusterNode> extractClusters(ClusterNode tree)
+    {
+        // since tree is the root node, we can simply copy the array of its
+        // children
+        Set<ClusterNode> current = new HashSet<ClusterNode>(tree.getChildren());
+
+        //System.out.println("Currssssss:" + current.size() + " x " + tree.getChildren().size());
+
+        // now loop until current.size() >= ci
+        while (current.size() < ci) {
+            Set<ClusterNode> newCurrent = new HashSet<ClusterNode>(current.size() * 2);
+            for (ClusterNode node : current) {
+                if (node.getChildren().size() > 0) {
+                    newCurrent.addAll(node.getChildren());
+                } else {
+                    newCurrent.add(node);
+                }
+            }
+
+            current = newCurrent;
+            //System.out.println("Curria:" + current.size());
+        }
+
+        // create a set of interesting parents
+        Set<ClusterNode> parents = new HashSet<ClusterNode>(current.size() * 2);
+
+        for (ClusterNode node : current) {
+            if (node.getParent().getChildren().size() > 1) {
+                // we only add parents with at least 2 children, otherwise
+                // they are not interesting
+                parents.add(node.getParent());
+            }
+        }
+
+        PriorityQueue<ClusterCombination> combinations = new PriorityQueue<ClusterCombination>();
+
+        // for each parent, check all combinations of all their children
+        for (ClusterNode parent : parents) {
+            // make all combinations of its children
+            ClusterNode children[] = (ClusterNode[]) parent.getChildren().toArray(new ClusterNode[0]);
+
+            for (int i = 0; i < children.length - 1; i++) {
+                for (int j = i + 1; j < children.length; j++) {
+                    // add the combination
+                    combinations.add(new ClusterCombination(children[i], children[j]));
+                }
+            }
+        }
+
+        /*
+         * We have at least ci nodes in the current list.
+         * 
+         * If we have more than cj nodes, we will have to merge some of these
+         * nodes, however.
+         */
+        while (current.size() > cj) {
+            ClusterCombination comb;
+            // first get the next existing combination
+            do {
+                comb = combinations.poll();
+            } while (null != comb && !comb.exists());
+
+            current = comb.merge(current, combinations);
+        }
+
+        return current;
     }
 
     /**
@@ -81,7 +203,7 @@ public abstract class Algorithm
      * @param L List of local maxima points, sorted in descending order of
      *          reachability.
      */
-    public void clusterTree(ClusterNode N, ClusterNode parent, PriorityQueue<AlgorithmPoint> L)
+    protected void clusterTree(ClusterNode N, ClusterNode parent, PriorityQueue<AlgorithmPoint> L)
     {
         if (L.size() == 0) {
             // parent is a leaf
@@ -115,53 +237,62 @@ public abstract class Algorithm
         PriorityQueue<AlgorithmPoint> L2 = new PriorityQueue<AlgorithmPoint>();
 
         // we don't need any particular order, thus we simply loop through it
+        // this makes it O(n) instead of O(n log n)
         for (AlgorithmPoint p : L) {
             if (p.getX() < N.splitPoint.getX()) {
                 L1.add(p);
-            } else if (p.getX() != N.splitPoint.getX()) {
+            } else if (p.getX() > N.splitPoint.getX()) {
                 L2.add(p);
             }
         }
 
         // avg is the average reachability distance in any node of N
-        if (avg / N.splitPoint.getReachabilityDistance() > DENSITY_RATIO) {
+        if (avg / N.splitPoint.getReachabilityDistance() > 10000000) {
             // ignore the split point and continue
             clusterTree(N, parent, L);
         } else {
-            if (N1.getPoints().size() > minClusterSize && N2.getPoints().size() > minClusterSize) {
+            if (N1.getPoints().size() < minClusterSize && N2.getPoints().size() < minClusterSize) {
                 return;
             }
 
-            // if (N.splitPoint.getReachabilityDistance() and
-            //     parent.splitPoint.getReachabilityDistance()
-            //     are approximately the same)
-            // Then the points of the parent are the points of N
-            // Other options:
-            // - Take the size of N compared to parent, and see if they are
-            //   approximately the same.
-            // - Take the average of the reachability distances of N and parent,
-            //   and see if they are approximately the same.
-            //
-            // Source of these ideas:
-            // https://github.com/amyxzhang/OPTICS-Automatic-Clustering/blob/master/AutomaticClustering.py
-            double diff = Math.abs(N.splitPoint.getReachabilityDistance() / parent.splitPoint.getReachabilityDistance());
-            if (diff < 1.0 + SIMILARITY_TRESHOLD && diff > 1.0 - SIMILARITY_TRESHOLD) {
-                /*
-                 * the split points are approximately the same
-                 * we will bypass the current node, remove it from its parent,
-                 * and add its children to the parent.
-                 * 
-                 * This will make the tree more compressed in height. And it
-                 * will also make sure it is not a binary tree.
-                 */
-                parent.getChildren().remove(N);
-                N = parent;
+            /*
+             * Determine if N and parent are approximately the same cluster.
+             *
+             * If that is the case, we remove N as a child of parent, and make
+             * the children of N, children of parent.
+             *
+             * There are three ways to check if N and parent are approximately
+             * the same:
+             *  1) Take the reachability distance of the split points of N and
+             *      parent, and check if they are approximately the same.
+             *  2) Take the size of N compared to parent and see if the
+             *      sizes are approximately the same.
+             *  3) Take the average of the reachability distances of N and
+             *      parent and see if they are approximately the same.
+             *
+             * Source of some of these ideas:
+             * https://github.com/amyxzhang/OPTICS-Automatic-Clustering/blob/master/AutomaticClustering.py
+             */
+            if (parent != null) {
+                double diff = Math.abs(N.splitPoint.getReachabilityDistance() - parent.splitPoint.getReachabilityDistance());
+                if (diff < 0.000000001) {
+                    /*
+                     * the split points are approximately the same
+                     * we will bypass the current node, remove it from its parent,
+                     * and add its children to the parent.
+                     * 
+                     * This will make the tree more compressed in height. And it
+                     * will also make sure it is not a binary tree.
+                     */
+                    parent.getChildren().remove(N);
+                    N = parent;
+                }
             }
 
-            if (N1.getPoints().size() > minClusterSize) {
+            if (N1.getPoints().size() >= minClusterSize) {
                 clusterTree(N1, N, L1);
             }
-            if (N2.getPoints().size() > minClusterSize) {
+            if (N2.getPoints().size() >= minClusterSize) {
                 clusterTree(N2, N, L2);
             }
         }
@@ -172,7 +303,7 @@ public abstract class Algorithm
      *
      * @return local maxima
      */
-    private PriorityQueue<AlgorithmPoint> findLocalMaxima()
+    protected PriorityQueue<AlgorithmPoint> findLocalMaxima()
     {
         PriorityQueue<AlgorithmPoint> maxima = new PriorityQueue<AlgorithmPoint>();
 
@@ -200,7 +331,7 @@ public abstract class Algorithm
                 }
             } else {
                 // average neighbours and compare
-                double avg = reachabilityPlot.get(i - 1).getReachabilityDistance() + reachabilityPlot.get(i + 1).getReachabilityDistance();
+                double avg = (reachabilityPlot.get(i - 1).getReachabilityDistance() + reachabilityPlot.get(i + 1).getReachabilityDistance()) / 2;
                 if (reachabilityPlot.get(i).getReachabilityDistance() * DENSITY_RATIO > avg) {
                     maxima.add(reachabilityPlot.get(i));
                 }
@@ -217,6 +348,92 @@ public abstract class Algorithm
     {
         for (AlgorithmPoint p : reachabilityPlot) {
             System.out.println(p.getCluster() + " " + p.getReachabilityDistance());
+        }
+    }
+
+    /**
+     * A cluster combination.
+     */
+    class ClusterCombination implements Comparable<ClusterCombination>
+    {
+        ClusterNode c1;
+        ClusterNode c2;
+
+        double diff = 0;
+
+        public ClusterCombination(ClusterNode c1, ClusterNode c2)
+        {
+            this.c1 = c1;
+            this.c2 = c2;
+
+            if (null == c1.splitPoint || null == c2.splitPoint) {
+                diff = 10000.0;
+            } else {
+                diff = Math.abs(c1.splitPoint.getReachabilityDistance() - c2.splitPoint.getReachabilityDistance());
+            }
+        }
+
+        /**
+         * Compare clusters.
+         */
+        public int compareTo(ClusterCombination o)
+        {
+            if (diff < o.diff) {
+                return -1;
+            } else if (diff > o.diff) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+
+        /**
+         * It exists if none of the nodes are removed.
+         */
+        public boolean exists()
+        {
+            return !c1.isRemoved() && !c2.isRemoved();
+        }
+
+        /**
+         * Merge the combination.
+         */
+        public Set<ClusterNode> merge(Set<ClusterNode> current, PriorityQueue<ClusterCombination> combinations)
+        {
+            current.remove(c1);
+            current.remove(c2);
+
+            // mark as removed
+            c1.remove();
+            c2.remove();
+
+            if (c1.getParent().getChildren().size() == 2) {
+                // simply replace with parent
+                current.add(c1.getParent());
+            } else {
+                // create a new node
+                ClusterNode node = new ClusterNode(c1.getParent());
+
+                // remove them from the parent
+                c1.getParent().getChildren().remove(c1);
+                c1.getParent().getChildren().remove(c2);
+
+                // merge
+                node.addPoints(c1.getPoints());
+                node.addPoints(c2.getPoints());
+
+                // add this node to the combinations
+                for (ClusterNode c : c1.getParent().getChildren()) {
+                    combinations.add(new ClusterCombination(c, node));
+                }
+
+                // finish the merge
+                c1.getParent().addChild(node);
+                current.add(node);
+            }
+
+
+            return current;
         }
     }
 
@@ -244,6 +461,12 @@ public abstract class Algorithm
          * The split point.
          */
         AlgorithmPoint splitPoint;
+
+        /**
+         * Removed marker.
+         */
+        boolean removed = false;
+
 
         /**
          * Constructor.
@@ -303,6 +526,32 @@ public abstract class Algorithm
         public void addPoint(AlgorithmPoint point)
         {
             points.add(point);
+        }
+
+        /**
+         * Add multiple points.
+         *
+         * @param points points to add
+         */
+        public void addPoints(Collection<AlgorithmPoint> c)
+        {
+            points.addAll(c);
+        }
+
+        /**
+         * Remove.
+         */
+        public void remove()
+        {
+            removed = true;
+        }
+
+        /**
+         * Is removed.
+         */
+        public boolean isRemoved()
+        {
+            return removed;
         }
     }
 

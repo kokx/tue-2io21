@@ -35,13 +35,6 @@ public class Optics extends Algorithm
     int minPts;
 
     /**
-     * ci: mininmum of found clusters
-     * cj: maximum of found clusters
-     */
-    int ci;
-    int cj;
-
-    /**
      * Cluster ID.
      */
     int clusterId;
@@ -64,8 +57,7 @@ public class Optics extends Algorithm
      */
     public void findParameters(int ci, int cj, int n)
     {
-        this.ci = ci;
-        this.cj = cj;
+        super.findParameters(ci, cj, n);
         
         this.epsilon = 10;
         this.minPts = 10;
@@ -110,7 +102,7 @@ public class Optics extends Algorithm
 
     /**
      * TODO: Create a general method for this in Algorithm and use it.
-     */
+     *
     @SuppressWarnings({"unchecked"})
     public void cluster()
     {
@@ -156,7 +148,7 @@ public class Optics extends Algorithm
                 reachabilityAverage = 0.005 * p.getReachabilityDistance() + 0.995 * reachabilityAverage;
             }
         }
-    }
+    }*/
 
     void expandClusterOrder(AlgorithmPoint p)
     {
@@ -164,7 +156,7 @@ public class Optics extends Algorithm
         List<PrioPair<AlgorithmPoint,Double>> N = nn.getV();
 
         // set the cluster
-        p.setCluster(clusterId);
+        //p.setCluster(clusterId);
 
         write(p);
         
@@ -178,7 +170,7 @@ public class Optics extends Algorithm
                 List<PrioPair<AlgorithmPoint,Double>> N_ = nn_.getV();
                 q.process();
 
-                q.setCluster(clusterId);
+                //q.setCluster(clusterId);
 
                 write(q);
                 
