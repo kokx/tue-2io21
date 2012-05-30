@@ -275,7 +275,7 @@ public abstract class Algorithm
              */
             if (parent != null) {
                 double diff = Math.abs(N.splitPoint.getReachabilityDistance() - parent.splitPoint.getReachabilityDistance());
-                if (diff < 0.000000001) {
+                if (diff < 0.0000001) {
                     /*
                      * the split points are approximately the same
                      * we will bypass the current node, remove it from its parent,

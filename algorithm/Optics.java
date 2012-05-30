@@ -36,11 +36,6 @@ public class Optics extends Algorithm
     double epsilon;
     int minPts;
 
-    /**
-     * Cluster ID.
-     */
-    int clusterId;
-
 
     /**
      * Constructor.
@@ -61,9 +56,9 @@ public class Optics extends Algorithm
     {
         super.findParameters(ci, cj, n);
 
-        this.epsilon = 10;
+        this.epsilon = Double.POSITIVE_INFINITY;
         this.minPts = 10;
-        this.minClusterSize = 10;
+        this.minClusterSize = 300;
 
         if (DISTANCE_METRIC == Calculations.DISTANCE_EUCLIDIAN_SQ) {
             epsilon = epsilon * epsilon;
@@ -76,15 +71,10 @@ public class Optics extends Algorithm
 
         reachabilityPlot = new ArrayList<AlgorithmPoint>(field.size());
 
-        clusterId = 1;
-
         for (Point p : field.getAllPoints()) {
             AlgorithmPoint op = new AlgorithmPoint(p);
             points.add(op);
         }
-
-        // just temporary
-        Collections.shuffle(points);
 
         // initialize the Priority Queue
         seeds = new PriorityQueue<AlgorithmPoint>();
@@ -93,25 +83,18 @@ public class Optics extends Algorithm
             if (p.isProcessed()) {
                 continue;
             }
-            p.process();
 
             expandClusterOrder(p);
-
-            clusterId++;
         }
-
-        clusterId--;
 
         cluster();
     }
 
     void expandClusterOrder(AlgorithmPoint p)
     {
-        Pair<List<PrioPair<AlgorithmPoint,Double>>, List<PrioPair<AlgorithmPoint,Double>>> nn = getNeighbours(p);
-        List<PrioPair<AlgorithmPoint,Double>> N = nn.getV();
+        List<PrioPair<AlgorithmPoint,Double>> N = getNeighbours(p);
 
-        // set the cluster
-        //p.setCluster(clusterId);
+        p.process();
 
         write(p);
 
@@ -121,11 +104,9 @@ public class Optics extends Algorithm
             AlgorithmPoint q;
 
             while ((q = seeds.poll()) != null) {
-                Pair<List<PrioPair<AlgorithmPoint,Double>>, List<PrioPair<AlgorithmPoint,Double>>> nn_ = getNeighbours(p);
-                List<PrioPair<AlgorithmPoint,Double>> N_ = nn_.getV();
-                q.process();
+                List<PrioPair<AlgorithmPoint,Double>> N_ = getNeighbours(p);
 
-                //q.setCluster(clusterId);
+                q.process();
 
                 write(q);
 
@@ -139,22 +120,18 @@ public class Optics extends Algorithm
     double coreDistance(List<PrioPair<AlgorithmPoint,Double>> N, AlgorithmPoint p)
     {
         if (N.size() >= minPts) {
-            return N.get(0).getV().doubleValue();
+            return N.get(minPts - 1).getV().doubleValue();
         }
         return UNDEFINED;
     }
 
     /**
-     * O(n) finding of the neighbour.
+     * O(n) finding of the neighbours. With R-trees, the running time should decrease to (expected) O(n log n)
      *
-     * @return A pair of lists, the first one contains the epsilon distances and the
-     *         second one all the points on minPts distance
+     * @return The epsilon-neighbourhood of the point. Ordered by distance to the point.
      */
-    Pair<List<PrioPair<AlgorithmPoint,Double>>, List<PrioPair<AlgorithmPoint,Double>>> getNeighbours(AlgorithmPoint p)
+    List<PrioPair<AlgorithmPoint,Double>> getNeighbours(AlgorithmPoint p)
     {
-        List<PrioPair<AlgorithmPoint,Double>> list = new ArrayList<PrioPair<AlgorithmPoint,Double>>();
-        List<PrioPair<AlgorithmPoint,Double>> nextNeighbours = new ArrayList<PrioPair<AlgorithmPoint,Double>>();
-
         PriorityQueue<PrioPair<AlgorithmPoint,Double>> pq = new PriorityQueue<PrioPair<AlgorithmPoint,Double>>();
 
         for (AlgorithmPoint q : points) {
@@ -165,10 +142,6 @@ public class Optics extends Algorithm
             double dist = Calculations.distance(p.getPoint(), q.getPoint(), DISTANCE_METRIC);
 
             PrioPair<AlgorithmPoint,Double> pair = new PrioPair<AlgorithmPoint,Double>(q, dist);
-
-            if (dist <= epsilon) {
-                list.add(pair);
-            }
 
             // add the pair
             if (pq.size() < minPts) {
@@ -182,11 +155,14 @@ public class Optics extends Algorithm
             }
         }
 
-        for (PrioPair<AlgorithmPoint,Double> pair : pq) {
+        List<PrioPair<AlgorithmPoint,Double>> nextNeighbours = new ArrayList<PrioPair<AlgorithmPoint,Double>>();
+        PrioPair<AlgorithmPoint,Double> pair;
+
+        while ((pair = pq.poll()) != null) {
             nextNeighbours.add(pair);
         }
 
-        return new Pair<List<PrioPair<AlgorithmPoint,Double>>, List<PrioPair<AlgorithmPoint,Double>>>(list, nextNeighbours);
+        return nextNeighbours;
     }
 
     /**
@@ -200,7 +176,6 @@ public class Optics extends Algorithm
             AlgorithmPoint o = pair.getT();
             if (!pair.getT().isProcessed()) {
                 double newReachabilityDistance = Math.max(coredist, Calculations.distance(o.getPoint(), p.getPoint(), DISTANCE_METRIC));
-                //System.out.println("rea: " + newReachabilityDistance);
 
                 if (o.getReachabilityDistance() == UNDEFINED) {
                     o.setReachabilityDistance(newReachabilityDistance);
@@ -220,10 +195,8 @@ public class Optics extends Algorithm
      */
     void write(AlgorithmPoint op)
     {
-        if (op.getReachabilityDistance() != UNDEFINED) {
-            op.setX(reachabilityPlot.size());
-            reachabilityPlot.add(op);
-        }
+        op.setX(reachabilityPlot.size());
+        reachabilityPlot.add(op);
     }
 
     class Pair<T,V>
@@ -271,7 +244,7 @@ public class Optics extends Algorithm
 
         public int compareTo(PrioPair<T,V> c)
         {
-            // to reverse the priority queue
+            // to reverse the priority queue, to a max-PriorityQueue
             return v.compareTo(c.getV()) * -1;
         }
     }
