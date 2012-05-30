@@ -178,7 +178,7 @@ public abstract class Algorithm
 
         /*
          * We have at least ci nodes in the current list.
-         * 
+         *
          * If we have more than cj nodes, we will have to merge some of these
          * nodes, however.
          */
@@ -215,7 +215,7 @@ public abstract class Algorithm
 
         ClusterNode N1 = new ClusterNode(N);
         ClusterNode N2 = new ClusterNode(N);
-        
+
         N.addChild(N1);
         N.addChild(N2);
 
@@ -280,7 +280,7 @@ public abstract class Algorithm
                      * the split points are approximately the same
                      * we will bypass the current node, remove it from its parent,
                      * and add its children to the parent.
-                     * 
+                     *
                      * This will make the tree more compressed in height. And it
                      * will also make sure it is not a binary tree.
                      */
@@ -305,7 +305,13 @@ public abstract class Algorithm
      */
     protected PriorityQueue<AlgorithmPoint> findLocalMaxima()
     {
-        PriorityQueue<AlgorithmPoint> maxima = new PriorityQueue<AlgorithmPoint>();
+        // TODO: initialize as a max-PriorityQueue
+        PriorityQueue<AlgorithmPoint> maxima = new PriorityQueue<AlgorithmPoint>(20, new Comparator<AlgorithmPoint>()
+                {
+                    public int compare(AlgorithmPoint a, AlgorithmPoint b) {
+                        return b.compareTo(a);
+                    }
+                });
 
         /*
          * We go through the reachability plot from left to right. For
@@ -655,5 +661,4 @@ public abstract class Algorithm
             return key;
         }
     }
-
 }

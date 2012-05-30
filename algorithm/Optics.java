@@ -20,6 +20,8 @@ public class Optics extends Algorithm
 
     /**
      * Seeds queue.
+     *
+     * This is a min-PriorityQueue.
      */
     PriorityQueue<AlgorithmPoint> seeds;
 
@@ -58,7 +60,7 @@ public class Optics extends Algorithm
     public void findParameters(int ci, int cj, int n)
     {
         super.findParameters(ci, cj, n);
-        
+
         this.epsilon = 10;
         this.minPts = 10;
         this.minClusterSize = 10;
@@ -81,6 +83,9 @@ public class Optics extends Algorithm
             points.add(op);
         }
 
+        // just temporary
+        Collections.shuffle(points);
+
         // initialize the Priority Queue
         seeds = new PriorityQueue<AlgorithmPoint>();
 
@@ -100,56 +105,6 @@ public class Optics extends Algorithm
         cluster();
     }
 
-    /**
-     * TODO: Create a general method for this in Algorithm and use it.
-     *
-    @SuppressWarnings({"unchecked"})
-    public void cluster()
-    {
-        // clusterId is the number of clusters
-        ArrayList<AlgorithmPoint> clusters[] = (ArrayList<AlgorithmPoint>[]) Array.newInstance(ArrayList.class, clusterId);
-        for (int i = 0; i < clusterId; i++) {
-            clusters[i] = new ArrayList<AlgorithmPoint>();
-        }
-
-        double reachabilityAverage = 0;
-        int count = 0;
-
-        // loop through all points and check their cluster
-        for (AlgorithmPoint p : reachabilityPlot) {
-            if (p.getCluster() > 0) {
-                clusters[p.getCluster() - 1].add(p);
-            } else {
-                p.setCluster(0);
-            }
-            // reachability average
-            count++;
-            double scale = 1.0 / count;
-
-            reachabilityAverage = scale * p.getReachabilityDistance() + (1 - scale) * reachabilityAverage;
-        }
-
-        count = 0;
-
-        // merge clusters that are too small
-        for (ArrayList<AlgorithmPoint> cluster : clusters) {
-            if (cluster.size() >= minPts) {
-                count++;
-            }
-            for (AlgorithmPoint p : cluster) {
-                if (p.getReachabilityDistance() > reachabilityAverage * 1.75) {
-                    // this is noise
-                    p.setCluster(0);
-                } else {
-                    p.setCluster(count);
-                }
-                 
-                // now recalculate the reachabilityAverage
-                reachabilityAverage = 0.005 * p.getReachabilityDistance() + 0.995 * reachabilityAverage;
-            }
-        }
-    }*/
-
     void expandClusterOrder(AlgorithmPoint p)
     {
         Pair<List<PrioPair<AlgorithmPoint,Double>>, List<PrioPair<AlgorithmPoint,Double>>> nn = getNeighbours(p);
@@ -159,7 +114,7 @@ public class Optics extends Algorithm
         //p.setCluster(clusterId);
 
         write(p);
-        
+
         if (coreDistance(N, p) != UNDEFINED) {
             update(N, p);
 
@@ -173,7 +128,7 @@ public class Optics extends Algorithm
                 //q.setCluster(clusterId);
 
                 write(q);
-                
+
                 if (coreDistance(N, q) != UNDEFINED) {
                     update(N_, q);
                 }
@@ -221,7 +176,7 @@ public class Optics extends Algorithm
             } else {
                 if (dist < ((Double) pq.peek().getV())) {
                     // remove the highest element
-                    pq.poll(); 
+                    pq.poll();
                     pq.add(pair);
                 }
             }
