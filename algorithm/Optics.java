@@ -13,11 +13,6 @@ import algorithm.*;
 public class Optics extends Algorithm
 {
 
-    // DISTANCE_MANHATTAN, DISTANCE_EUCLIDIAN or DISTANCE_EUCLIDIAN_SQ
-    // Euclidian Sq is the same as Euclidian, but does not take the square root,
-    // but instead squares the epsilon parameter. Thus it is a lot faster.
-    public final static int DISTANCE_METRIC = Calculations.DISTANCE_MANHATTAN;
-
     /**
      * Seeds queue.
      *
@@ -56,9 +51,9 @@ public class Optics extends Algorithm
     {
         super.findParameters(ci, cj, n);
 
-        this.epsilon = Double.POSITIVE_INFINITY;
-        this.minPts = 10;
-        this.minClusterSize = 300;
+        this.epsilon = 100000000.0;
+        this.minPts = 5;
+        this.minClusterSize = 1;
 
         if (DISTANCE_METRIC == Calculations.DISTANCE_EUCLIDIAN_SQ) {
             epsilon = epsilon * epsilon;
@@ -79,6 +74,7 @@ public class Optics extends Algorithm
         // initialize the Priority Queue
         seeds = new PriorityQueue<AlgorithmPoint>();
 
+
         for (AlgorithmPoint p : points) {
             if (p.isProcessed()) {
                 continue;
@@ -92,47 +88,53 @@ public class Optics extends Algorithm
 
     void expandClusterOrder(AlgorithmPoint p)
     {
-        List<PrioPair<AlgorithmPoint,Double>> N = getNeighbours(p);
-
-        p.process();
+        List<List<PrioPair<AlgorithmPoint,Double>>> N = getNeighbours(p);
 
         write(p);
 
-        if (coreDistance(N, p) != UNDEFINED) {
-            update(N, p);
+        double coredist = coreDistance(N, p);
+
+        if (coredist != UNDEFINED) {
+            update(N, p, coredist);
 
             AlgorithmPoint q;
 
             while ((q = seeds.poll()) != null) {
-                List<PrioPair<AlgorithmPoint,Double>> N_ = getNeighbours(p);
-
-                q.process();
+                List<List<PrioPair<AlgorithmPoint,Double>>> N_ = getNeighbours(q);
 
                 write(q);
 
-                if (coreDistance(N, q) != UNDEFINED) {
-                    update(N_, q);
+                double coredist_ = coreDistance(N_, q);
+
+                if (coredist_ != UNDEFINED) {
+                    update(N_, q, coredist_);
                 }
             }
         }
     }
 
-    double coreDistance(List<PrioPair<AlgorithmPoint,Double>> N, AlgorithmPoint p)
+    double coreDistance(List<List<PrioPair<AlgorithmPoint,Double>>> N, AlgorithmPoint p)
     {
-        if (N.size() >= minPts) {
-            return N.get(minPts - 1).getV().doubleValue();
+        if (N.get(1).size() >= minPts) {
+            return N.get(0).get(0).getV().doubleValue();
         }
         return UNDEFINED;
     }
 
     /**
-     * O(n) finding of the neighbours. With R-trees, the running time should decrease to (expected) O(n log n)
+     * O(n) finding of the neighbours.
      *
-     * @return The epsilon-neighbourhood of the point. Ordered by distance to the point.
+     * With R-trees, the running time should decrease to (expected) O(n log n)
+     *
+     * @return A list with two elements.
+     *          - The first one contains the nearest neighbours. (size should be minPts)
+     *          - The second one contains the epsilon-neighbourhood.
      */
-    List<PrioPair<AlgorithmPoint,Double>> getNeighbours(AlgorithmPoint p)
+    List<List<PrioPair<AlgorithmPoint,Double>>> getNeighbours(AlgorithmPoint p)
     {
         PriorityQueue<PrioPair<AlgorithmPoint,Double>> pq = new PriorityQueue<PrioPair<AlgorithmPoint,Double>>();
+
+        List<PrioPair<AlgorithmPoint,Double>> epsilonRangeList = new ArrayList<PrioPair<AlgorithmPoint,Double>>();
 
         for (AlgorithmPoint q : points) {
             if (q == p) {
@@ -142,6 +144,10 @@ public class Optics extends Algorithm
             double dist = Calculations.distance(p.getPoint(), q.getPoint(), DISTANCE_METRIC);
 
             PrioPair<AlgorithmPoint,Double> pair = new PrioPair<AlgorithmPoint,Double>(q, dist);
+
+            if (dist <= epsilon) {
+                epsilonRangeList.add(pair);
+            }
 
             // add the pair
             if (pq.size() < minPts) {
@@ -158,23 +164,27 @@ public class Optics extends Algorithm
         List<PrioPair<AlgorithmPoint,Double>> nextNeighbours = new ArrayList<PrioPair<AlgorithmPoint,Double>>();
         PrioPair<AlgorithmPoint,Double> pair;
 
+        // basically the last step of HeapSort
         while ((pair = pq.poll()) != null) {
             nextNeighbours.add(pair);
         }
 
-        return nextNeighbours;
+        List<List<PrioPair<AlgorithmPoint,Double>>> result = new ArrayList<List<PrioPair<AlgorithmPoint,Double>>>();
+
+        result.add(nextNeighbours);
+        result.add(epsilonRangeList);
+
+        return result;
     }
 
     /**
      * Update method
      */
-    void update(List<PrioPair<AlgorithmPoint,Double>> N, AlgorithmPoint p)
+    void update(List<List<PrioPair<AlgorithmPoint,Double>>> N, AlgorithmPoint p, double coredist)
     {
-        double coredist = coreDistance(N, p);
-
-        for (PrioPair<AlgorithmPoint,Double> pair : N) {
+        for (PrioPair<AlgorithmPoint,Double> pair : N.get(1)) {
             AlgorithmPoint o = pair.getT();
-            if (!pair.getT().isProcessed()) {
+            if (!o.isProcessed() || o.getReachabilityDistance() == UNDEFINED) {
                 double newReachabilityDistance = Math.max(coredist, Calculations.distance(o.getPoint(), p.getPoint(), DISTANCE_METRIC));
 
                 if (o.getReachabilityDistance() == UNDEFINED) {
@@ -183,6 +193,7 @@ public class Optics extends Algorithm
                 } else {
                     if (newReachabilityDistance < o.getReachabilityDistance()) {
                         seeds.remove(o);
+                        o.setReachabilityDistance(newReachabilityDistance);
                         seeds.add(o);
                     }
                 }
@@ -195,8 +206,11 @@ public class Optics extends Algorithm
      */
     void write(AlgorithmPoint op)
     {
-        op.setX(reachabilityPlot.size());
-        reachabilityPlot.add(op);
+        if (!op.isProcessed()) {
+            op.process();
+            op.setX(reachabilityPlot.size());
+            reachabilityPlot.add(op);
+        }
     }
 
     class Pair<T,V>

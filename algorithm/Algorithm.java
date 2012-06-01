@@ -10,10 +10,15 @@ public abstract class Algorithm
 
     public final static double UNDEFINED = Double.POSITIVE_INFINITY;
 
+    // DISTANCE_MANHATTAN, DISTANCE_EUCLIDIAN or DISTANCE_EUCLIDIAN_SQ
+    // Euclidian Sq is the same as Euclidian, but does not take the square root,
+    // but instead squares the epsilon parameter. Thus it is a lot faster.
+    public final static int DISTANCE_METRIC = Calculations.DISTANCE_MANHATTAN;
+
     /**
      * Ratio for determining if a point is a local maxima point.
      */
-    public final static double DENSITY_RATIO = 0.75;
+    public final static double DENSITY_RATIO = 0.85;
 
     /**
      * Treshold for determining if a local maxima is too similiar to its parent.
@@ -90,11 +95,20 @@ public abstract class Algorithm
         // first make the root node
         ClusterNode root = new ClusterNode(null);
 
-        root.addPoints(reachabilityPlot);
+        for (AlgorithmPoint p : reachabilityPlot) {
+            if (p.getReachabilityDistance() == UNDEFINED) {
+                p.setReachabilityDistance(0);
+                p.setCluster(0);
+            } else {
+                root.addPoint(p);
+            }
+        }
 
         PriorityQueue<AlgorithmPoint> localMaxima = findLocalMaxima();
 
         clusterTree(root, null, localMaxima);
+
+        //printTree(root);
 
         Set<ClusterNode> clusters = extractClusters(root);
 
@@ -133,12 +147,13 @@ public abstract class Algorithm
         // children
         Set<ClusterNode> current = new HashSet<ClusterNode>(tree.getChildren());
 
-        //System.out.println("Currssssss:" + current.size() + " x " + tree.getChildren().size());
+        //System.out.println("bla: " + tree.getChildren().size());
 
         // now loop until current.size() >= ci
         while (current.size() < ci) {
             Set<ClusterNode> newCurrent = new HashSet<ClusterNode>(current.size() * 2);
             for (ClusterNode node : current) {
+                //System.out.println("size: " + node.getChildren().size());
                 if (node.getChildren().size() > 0) {
                     newCurrent.addAll(node.getChildren());
                 } else {
@@ -147,7 +162,7 @@ public abstract class Algorithm
             }
 
             current = newCurrent;
-            //System.out.println("Curria:" + current.size());
+            //System.out.println("Curr: " + current.size());
         }
 
         // create a set of interesting parents
@@ -216,9 +231,6 @@ public abstract class Algorithm
         ClusterNode N1 = new ClusterNode(N);
         ClusterNode N2 = new ClusterNode(N);
 
-        N.addChild(N1);
-        N.addChild(N2);
-
         double avg = 0.0;
         int size = N.getPoints().size() - 1;
         // first loop through all points in N, and also determine the average
@@ -247,7 +259,7 @@ public abstract class Algorithm
         }
 
         // avg is the average reachability distance in any node of N
-        if (avg / N.splitPoint.getReachabilityDistance() > 10000000) {
+        if (avg / N.splitPoint.getReachabilityDistance() > DENSITY_RATIO) {
             // ignore the split point and continue
             clusterTree(N, parent, L);
         } else {
@@ -275,7 +287,7 @@ public abstract class Algorithm
              */
             if (parent != null) {
                 double diff = Math.abs(N.splitPoint.getReachabilityDistance() - parent.splitPoint.getReachabilityDistance());
-                if (diff < 0.0000001) {
+                if (diff < 0.0001) {
                     /*
                      * the split points are approximately the same
                      * we will bypass the current node, remove it from its parent,
@@ -290,9 +302,11 @@ public abstract class Algorithm
             }
 
             if (N1.getPoints().size() >= minClusterSize) {
+                N.addChild(N1);
                 clusterTree(N1, N, L1);
             }
             if (N2.getPoints().size() >= minClusterSize) {
+                N.addChild(N2);
                 clusterTree(N2, N, L2);
             }
         }
@@ -305,7 +319,6 @@ public abstract class Algorithm
      */
     protected PriorityQueue<AlgorithmPoint> findLocalMaxima()
     {
-        // TODO: initialize as a max-PriorityQueue
         PriorityQueue<AlgorithmPoint> maxima = new PriorityQueue<AlgorithmPoint>(20, new Comparator<AlgorithmPoint>()
                 {
                     public int compare(AlgorithmPoint a, AlgorithmPoint b) {
@@ -358,6 +371,20 @@ public abstract class Algorithm
     }
 
     /**
+     * Print the cluster tree.
+     */
+    public void printTree(ClusterNode node)
+    {
+        System.out.println("Ch: " + node.getPoints().size() + " {");
+
+        for (ClusterNode child : node.getChildren()) {
+            printTree(child);
+        }
+
+        System.out.println("}");
+    }
+
+    /**
      * A cluster combination.
      */
     class ClusterCombination implements Comparable<ClusterCombination>
@@ -372,15 +399,31 @@ public abstract class Algorithm
             this.c1 = c1;
             this.c2 = c2;
 
-            if (null == c1.splitPoint || null == c2.splitPoint) {
-                diff = 10000.0;
-            } else {
-                diff = Math.abs(c1.splitPoint.getReachabilityDistance() - c2.splitPoint.getReachabilityDistance());
-            }
+            /**
+             * TODO.
+             *
+             * Take a random point from each of the cluster nodes. Take the
+             * distance between these points. That is the 'diff'.
+             *
+             * TODO
+             *
+             * Investigate if we can find the point in the cluster with the
+             * lowest reachability distance. This is O(n), we need to check
+             * if we can do this fast enough. Or we take the centroid, also
+             * O(n), but with higher constants.
+             */
+            int p1 = c1.getPoints().get(minClusterSize).getX();
+            int p2 = c2.getPoints().get(minClusterSize).getX();
+
+            diff = (double) Math.abs(p1 - p2);
+
+            //System.out.println("D: " + diff + " S1: " + c1.getPoints().size() + " S2: " + c2.getPoints().size());
         }
 
         /**
          * Compare clusters.
+         *
+         * This makes it a min-priorityqueue
          */
         public int compareTo(ClusterCombination o)
         {
