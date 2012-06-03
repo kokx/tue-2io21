@@ -62,22 +62,21 @@ public class Optics extends Algorithm
         // now the minPts. We want to make sure that this is not too big,
         // because that will decrease the running time fast
         // thus, we give it a maximum value of 40, also, a minimum of 8
-        // We'll take sqrt(n / cj)
-        minPts = (int) Math.pow(n / cj, 1.0/2.5);
+        // We'll take the 2.5th root of (n / cj), and add 5
+        minPts = (int) Math.pow(n / cj, 1.0/2.5) + 5;
 
         if (minPts < 8) {
             minPts = 8;
         } else if (minPts > 40) {
             minPts = 40;
         }
-        // TODO: tune this
-        System.out.println("minPts: " + minPts + " n: " + n + " cj: " + cj + " n/cj: " + n / cj);
+        //System.out.println("minPts: " + minPts + " n: " + n + " cj: " + cj + " n/cj: " + n / cj);
 
         // the minClusterSize is slightly different, making this bigger on
         // bigger datasets, will make the finding of clusters faster. But
-        // making it too small on big datasets will
-        // TODO: Implement something like this.
-        minClusterSize = 10;
+        // making it too small on big datasets will make it a weird output.
+        minClusterSize = (n/3) / cj;
+        //System.out.println("minClusterSize: " + minClusterSize + " n / 3: " + n / 3+ " cj: " + cj + " (n / 3) / cj: " + (n / 3) / cj);
 
         if (DISTANCE_METRIC == Calculations.DISTANCE_EUCLIDIAN_SQ) {
             epsilon = epsilon * epsilon;
