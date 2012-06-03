@@ -2,11 +2,11 @@
 
 # first compile all files
 
-./compile
+./cluster
 
 java generator.Main > input/$1
 
-cat input/$1 | java Main > input/$1.out
+cat input/$1 | java Main allnoise > input/$1.out
 
 # visualization
 

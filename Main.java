@@ -8,11 +8,11 @@ class Main {
     Scanner sc;
     Algorithm algo;
 
-    public Main()
+    public Main(Algorithm algo)
     {
         sc = new Scanner(System.in);
 
-        algo = new Optics();
+        this.algo = algo;
     }
 
     /**
@@ -89,9 +89,16 @@ class Main {
     public static void main(String args[])
     {
         boolean reach = false;
-        if (args.length >= 1 && "reach".equals(args[0])) {
-            reach = true;
+        Algorithm algo = new Optics();
+
+        for (String arg : args) {
+            if ("reach".equals(arg)) {
+                reach = true;
+            } else if ("noise".equals(arg) || "allnoise".equals(arg)) {
+                algo = new Allnoise();
+            }
         }
-        new Main().run(reach);
+
+        new Main(algo).run(reach);
     }
 }

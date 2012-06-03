@@ -8,11 +8,12 @@ import model.*;
 class Main {
     Scanner sc;
 
-    public final static int CLUSTERS = 6;
-    public final static int CLUSTER_MIN_SIZE = 100;
-    public final static int CLUSTER_MAX_SIZE = 500;
+    public final static int CLUSTERS = 5;
+    public final static int CLUSTER_MIN_SIZE = 300;
+    public final static int CLUSTER_MAX_SIZE = 600;
     public final static int CLUSTER_MIN_DENSITY = 5000;
     public final static int CLUSTER_MAX_DENSITY = 25000;
+    public final static int FIELD_SIZE = 10000;
 
     public Main()
     {
@@ -21,20 +22,33 @@ class Main {
 
     void run()
     {
+        int field = FIELD_SIZE;
         Generator generator = new Generator(5000, 5000);
 
-        generator.createUniformNoise(300);
+        generator.createUniformNoise(100);
+        generator.generateGaussianNoise(10, 600, 300);
+        field -= 300;
+        field -= 1800;
 
         Random random = generator.getRandomGenerator();
 
-        for (int i = 0; i < CLUSTERS; i++) {
-            int size = CLUSTER_MIN_SIZE + random.nextInt(CLUSTER_MAX_SIZE - CLUSTER_MIN_SIZE);
-            int density = CLUSTER_MIN_DENSITY + random.nextInt(CLUSTER_MAX_DENSITY - CLUSTER_MIN_DENSITY);
+        // create an array with cluster sizes
+        int clusters[] = new int [CLUSTERS];
+        int points = 0;
 
-            generator.generateCluster(size, density);
+        for (int i = 0; i < CLUSTERS; i++) {
+            clusters[i] = CLUSTER_MIN_SIZE + random.nextInt(CLUSTER_MAX_SIZE - CLUSTER_MIN_SIZE);
+            points += clusters[i];
         }
 
-        generator.generateGaussianNoise(10, 600, 1800);
+        // density, number of points per square in the grid
+        double density = field / ((double) points);
+
+        //System.out.println("Dens: " + density + " Field: " + field + " Points: " + points);
+
+        for (int i = 0; i < CLUSTERS; i++) {
+            generator.generateCluster(clusters[i], (int) (density * clusters[i]));
+        }
 
         output(generator.getField());
     }
@@ -43,7 +57,7 @@ class Main {
     {
         Collection<Point> points = field.getAllPoints();
 
-        System.out.println("find 2 to 4 clusters");
+        System.out.println("find " + CLUSTERS + " clusters");
         System.out.println(field.size() + " points");
 
         for (Point p : points) {

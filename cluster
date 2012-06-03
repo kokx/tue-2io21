@@ -11,6 +11,7 @@
 #   -q      Quality measure
 #   -t      Time algorithm (cannot be used in combination with -R)
 #   -nv     Run visualization, but do not display the image
+#   -no     Do not run a real algorithm.
 
 # functions
 
@@ -27,19 +28,22 @@ compile() {
 
 run()
 {
-    export reach=""
+    export params=""
 
     if [ $1 ]; then
         if [ $1 = "-r" ]; then
-            export reach="reach"
+            export params="reach"
             message "Reachability plot....."
         else
             message "Running..............."
+            if [ $1 = "allnoise" ]; then
+                export params="allnoise"
+            fi
         fi
     else
         message "Running..............."
     fi
-    java Main $reach
+    java Main $params
 }
 
 run_file()
@@ -64,6 +68,7 @@ export R=""
 export q=""
 export t=""
 export nv=""
+export params=""
 
 for arg in $@
 do
@@ -83,6 +88,9 @@ do
         -nv)
             export nv="t"
             ;;
+        -no)
+            export params="allnoise"
+            ;;
         *)
             file=$arg
             ;;
@@ -101,9 +109,9 @@ if [ "$R" = "t" ]; then
 else
     # run and visualize
     if [ "$t" = "t" ]; then
-        time_run_file $file | tee $file.out | java visualize.Main
+        time_run_file $file $params | tee $file.out | java visualize.Main
     else
-        run_file $file | tee $file.out | java visualize.Main
+        run_file $file $params | tee $file.out | java visualize.Main
     fi
     if [ "$nv" = "t" ]; then
         less $file.out
