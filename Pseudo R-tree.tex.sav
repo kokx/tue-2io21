@@ -1,0 +1,44 @@
+\documentclass[9pt]{article}        %de globale stijl = artikel
+\usepackage{a4wide}                 %Volledige papierbreedte gebruiken
+\usepackage[dutch]{babel}           %afbreekregels volgens Nederlands gebruik
+\usepackage{graphicx}               %voor het in de tekst opnemen van plaatjes
+\usepackage{amsmath}                %standaard settings voor wiskundig gebruik
+\usepackage{amssymb}                %arsenaal aan gebruikelijke wiskundige symbolen
+\usepackage{latexsym}
+\usepackage{eurosym}
+\usepackage{listings}
+%\usepackage{rotating}
+\usepackage{lscape}
+
+%Blijf hier af
+\newcommand\agendapunt[1]{\section{\large{#1}}\vspace{-7 pt}}
+\newenvironment{subpunten}{\begin{itemize} \itemsep -5pt}{\end{itemize}\vspace{-20 pt}}
+\renewcommand{\labelitemi}{$\star$}
+\newcommand{\e}{$^\text{e}$ }
+\topmargin -1in
+\setlength\parindent{0pt}
+\pagestyle{empty}
+\newcounter{nummer}
+\newcommand{\nummer}{\arabic{nummer}\e}
+
+%Pas dit aan
+\setcounter{nummer}{28}                %Nummer
+\newcommand{\datum}{Dinsdag 29 Mei 2012 }     %Datum
+\newcommand{\tijd}{12:42}                %Tijd
+
+\begin{document}
+Building the R-tree:
+\begin{enumerate}
+\item if width > height
+\item   height = width
+\item else
+\item   width = height
+\item split4way(width,height)
+\end{enumerate}
+
+split4way
+\begin{enumerate}
+\item 
+\end{enumerate}
+
+\end{document}
