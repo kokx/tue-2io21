@@ -105,7 +105,9 @@ else
     else
         run_file $file | tee $file.out | java visualize.Main
     fi
-    if [ "$nv" != "t" ]; then
+    if [ "$nv" = "t" ]; then
+        less $file.out
+    else
         xdg-open output.png
     fi
 
