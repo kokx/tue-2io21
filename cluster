@@ -10,6 +10,7 @@
 #   -R      Reachability plot, but don't run the normal algorithm
 #   -q      Quality measure
 #   -t      Time algorithm (cannot be used in combination with -R)
+#   -nv     Run visualization, but do not display the image
 
 # functions
 
@@ -19,7 +20,9 @@ message() {
 
 compile() {
     echo "Compiling............."
-    javac Main.java algorithm/*.java generator/*.java model/*.java quality/*.java visualize/*.java reachability/*.java
+    # first we remove all *.class files
+    rm -r *.class 2> /dev/null
+    javac -Xlint:unchecked Main.java algorithm/*.java generator/*.java model/*.java quality/*.java visualize/*.java reachability/*.java
 }
 
 run()
@@ -60,6 +63,7 @@ export r=""
 export R=""
 export q=""
 export t=""
+export nv=""
 
 for arg in $@
 do
@@ -76,11 +80,19 @@ do
         -t)
             export t="t"
             ;;
+        -nv)
+            export nv="t"
+            ;;
         *)
             file=$arg
             ;;
     esac
 done
+
+
+if [ -z $file ]; then
+    exit
+fi
 
 # TODO: Implement quality measure
 if [ "$R" = "t" ]; then
@@ -93,11 +105,15 @@ else
     else
         run_file $file | tee $file.out | java visualize.Main
     fi
-    xdg-open output.png
+    if [ "$nv" = "t" ]; then
+        less $file.out
+    else
+        xdg-open output.png
+    fi
 
     # run and plot reachability
     if [ "$r" = "t" ]; then
         run_file $file -r | java reachability.Main
+        xdg-open reach.png
     fi
-    xdg-open reach.png
 fi

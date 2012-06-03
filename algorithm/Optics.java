@@ -13,13 +13,10 @@ import algorithm.*;
 public class Optics extends Algorithm
 {
 
-    // DISTANCE_MANHATTAN, DISTANCE_EUCLIDIAN or DISTANCE_EUCLIDIAN_SQ
-    // Euclidian Sq is the same as Euclidian, but does not take the square root,
-    // but instead squares the epsilon parameter. Thus it is a lot faster.
-    public final static int DISTANCE_METRIC = Calculations.DISTANCE_MANHATTAN;
-
     /**
      * Seeds queue.
+     *
+     * This is a min-PriorityQueue.
      */
     PriorityQueue<AlgorithmPoint> seeds;
 
@@ -29,27 +26,10 @@ public class Optics extends Algorithm
     ArrayList<AlgorithmPoint> points;
 
     /**
-     * Reachability plot
-     */
-    ArrayList<AlgorithmPoint> reachabilityPlot;
-
-    /**
      * Parameters.
      */
     double epsilon;
     int minPts;
-
-    /**
-     * ci: mininmum of found clusters
-     * cj: maximum of found clusters
-     */
-    int ci;
-    int cj;
-
-    /**
-     * Cluster ID.
-     */
-    int clusterId;
 
 
     /**
@@ -67,151 +47,119 @@ public class Optics extends Algorithm
      * @param cj Maximum number of clusters
      * @param n Number of points
      */
-    public void findParameters(int ci, int cj, int n)
+    public void findParameters(int ci, int cj, int n, long width, long height)
     {
-        this.ci = ci;
-        this.cj = cj;
-        
-        this.epsilon = 10;
-        this.minPts = 10;
+        super.findParameters(ci, cj, n, width, height);
+
+        // first the epsilon
+        // Z = w + h
+        // epsilon = Z / sqrt(n)
+        double Z = width + height;
+
+        epsilon = Z / Math.sqrt(n);
+        //System.out.println("E: " + epsilon + " n: " + n + " Z: " + Z + " w: " + width + " h: " + height);
+
+        // now the minPts. We want to make sure that this is not too big,
+        // because that will decrease the running time fast
+        // thus, we give it a maximum value of 40, also, a minimum of 8
+        // We'll take the 2.5th root of (n / cj), and add 5
+        minPts = (int) Math.pow(n / cj, 1.0/2.5) + 5;
+
+        if (minPts < 8) {
+            minPts = 8;
+        } else if (minPts > 40) {
+            minPts = 40;
+        }
+        //System.out.println("minPts: " + minPts + " n: " + n + " cj: " + cj + " n/cj: " + n / cj);
+
+        // the minClusterSize is slightly different, making this bigger on
+        // bigger datasets, will make the finding of clusters faster. But
+        // making it too small on big datasets will make it a weird output.
+        minClusterSize = (n/3) / cj;
+        //System.out.println("minClusterSize: " + minClusterSize + " n / 3: " + n / 3+ " cj: " + cj + " (n / 3) / cj: " + (n / 3) / cj);
 
         if (DISTANCE_METRIC == Calculations.DISTANCE_EUCLIDIAN_SQ) {
             epsilon = epsilon * epsilon;
         }
     }
 
-    @SuppressWarnings({"unchecked"})
     public void run()
     {
         points = new ArrayList<AlgorithmPoint>();
 
         reachabilityPlot = new ArrayList<AlgorithmPoint>(field.size());
 
-        clusterId = 1;
-
         for (Point p : field.getAllPoints()) {
             AlgorithmPoint op = new AlgorithmPoint(p);
             points.add(op);
         }
 
+        points.addAll(createNoise());
+
         // initialize the Priority Queue
         seeds = new PriorityQueue<AlgorithmPoint>();
+
 
         for (AlgorithmPoint p : points) {
             if (p.isProcessed()) {
                 continue;
             }
-            p.process();
 
             expandClusterOrder(p);
-
-            clusterId++;
         }
 
-        clusterId--;
-
-        // clusterId should now be the number of clusters
-        ArrayList<AlgorithmPoint> clusters[] = (ArrayList<AlgorithmPoint>[]) Array.newInstance(ArrayList.class, clusterId);
-        for (int i = 0; i < clusterId; i++) {
-            clusters[i] = new ArrayList<AlgorithmPoint>();
-        }
-
-        double reachabilityAverage = 0;
-        int count = 0;
-
-        // loop through all points and check their cluster
-        for (AlgorithmPoint p : reachabilityPlot) {
-            if (p.getCluster() > 0) {
-                clusters[p.getCluster() - 1].add(p);
-            } else {
-                p.setCluster(0);
-            }
-            // reachability average
-            count++;
-            double scale = 1.0 / count;
-
-            reachabilityAverage = scale * p.getReachabilityDistance() + (1 - scale) * reachabilityAverage;
-        }
-
-        count = 0;
-
-        // merge clusters that are too small
-        for (ArrayList<AlgorithmPoint> cluster : clusters) {
-            if (cluster.size() >= minPts) {
-                count++;
-            }
-            for (AlgorithmPoint p : cluster) {
-                if (p.getReachabilityDistance() > reachabilityAverage * 1.75) {
-                    // this is noise
-                    p.setCluster(0);
-                } else {
-                    p.setCluster(count);
-                }
-                 
-                // now recalculate the reachabilityAverage
-                reachabilityAverage = 0.005 * p.getReachabilityDistance() + 0.995 * reachabilityAverage;
-            }
-        }
-    }
-
-    public void printReachability()
-    {
-        for (AlgorithmPoint p : reachabilityPlot) {
-            System.out.println(p.getCluster() + " " + p.getReachabilityDistance());
-        }
+        cluster();
     }
 
     void expandClusterOrder(AlgorithmPoint p)
     {
-        Pair<List<PrioPair<AlgorithmPoint,Double>>, List<PrioPair<AlgorithmPoint,Double>>> nn = getNeighbours(p);
-        List<PrioPair<AlgorithmPoint,Double>> N = nn.getV();
-
-        // set the cluster
-        p.setCluster(clusterId);
+        List<List<PrioPair<AlgorithmPoint,Double>>> N = getNeighbours(p);
 
         write(p);
-        
-        if (coreDistance(N, p) != UNDEFINED) {
-            update(N, p);
+
+        double coredist = coreDistance(N, p);
+
+        if (coredist != UNDEFINED) {
+            update(N, p, coredist);
 
             AlgorithmPoint q;
 
             while ((q = seeds.poll()) != null) {
-                Pair<List<PrioPair<AlgorithmPoint,Double>>, List<PrioPair<AlgorithmPoint,Double>>> nn_ = getNeighbours(p);
-                List<PrioPair<AlgorithmPoint,Double>> N_ = nn_.getV();
-                q.process();
-
-                q.setCluster(clusterId);
+                List<List<PrioPair<AlgorithmPoint,Double>>> N_ = getNeighbours(q);
 
                 write(q);
-                
-                if (coreDistance(N, q) != UNDEFINED) {
-                    update(N_, q);
+
+                double coredist_ = coreDistance(N_, q);
+
+                if (coredist_ != UNDEFINED) {
+                    update(N_, q, coredist_);
                 }
             }
         }
     }
 
-    double coreDistance(List<PrioPair<AlgorithmPoint,Double>> N, AlgorithmPoint p)
+    double coreDistance(List<List<PrioPair<AlgorithmPoint,Double>>> N, AlgorithmPoint p)
     {
-        if (N.size() >= minPts) {
-            return N.get(0).getV().doubleValue();
+        if (N.get(1).size() >= minPts) {
+            return N.get(0).get(0).getV().doubleValue();
         }
         return UNDEFINED;
     }
 
     /**
-     * O(n) finding of the neighbour.
+     * O(n) finding of the neighbours.
      *
-     * @return A pair of lists, the first one contains the epsilon distances and the
-     *         second one all the points on minPts distance
+     * With R-trees, the running time should decrease to (expected) O(n log n)
+     *
+     * @return A list with two elements.
+     *          - The first one contains the nearest neighbours. (size should be minPts)
+     *          - The second one contains the epsilon-neighbourhood.
      */
-    Pair<List<PrioPair<AlgorithmPoint,Double>>, List<PrioPair<AlgorithmPoint,Double>>> getNeighbours(AlgorithmPoint p)
+    List<List<PrioPair<AlgorithmPoint,Double>>> getNeighbours(AlgorithmPoint p)
     {
-        List<PrioPair<AlgorithmPoint,Double>> list = new ArrayList<PrioPair<AlgorithmPoint,Double>>();
-        List<PrioPair<AlgorithmPoint,Double>> nextNeighbours = new ArrayList<PrioPair<AlgorithmPoint,Double>>();
-
         PriorityQueue<PrioPair<AlgorithmPoint,Double>> pq = new PriorityQueue<PrioPair<AlgorithmPoint,Double>>();
+
+        List<PrioPair<AlgorithmPoint,Double>> epsilonRangeList = new ArrayList<PrioPair<AlgorithmPoint,Double>>();
 
         for (AlgorithmPoint q : points) {
             if (q == p) {
@@ -223,7 +171,7 @@ public class Optics extends Algorithm
             PrioPair<AlgorithmPoint,Double> pair = new PrioPair<AlgorithmPoint,Double>(q, dist);
 
             if (dist <= epsilon) {
-                list.add(pair);
+                epsilonRangeList.add(pair);
             }
 
             // add the pair
@@ -232,31 +180,38 @@ public class Optics extends Algorithm
             } else {
                 if (dist < ((Double) pq.peek().getV())) {
                     // remove the highest element
-                    pq.poll(); 
+                    pq.poll();
                     pq.add(pair);
                 }
             }
         }
 
-        for (PrioPair<AlgorithmPoint,Double> pair : pq) {
+        List<PrioPair<AlgorithmPoint,Double>> nextNeighbours = new ArrayList<PrioPair<AlgorithmPoint,Double>>();
+        PrioPair<AlgorithmPoint,Double> pair;
+
+        // basically the last step of HeapSort
+        while ((pair = pq.poll()) != null) {
             nextNeighbours.add(pair);
         }
 
-        return new Pair<List<PrioPair<AlgorithmPoint,Double>>, List<PrioPair<AlgorithmPoint,Double>>>(list, nextNeighbours);
+        List<List<PrioPair<AlgorithmPoint,Double>>> result = new ArrayList<List<PrioPair<AlgorithmPoint,Double>>>();
+
+        result.add(nextNeighbours);
+        result.add(epsilonRangeList);
+
+        return result;
     }
 
     /**
      * Update method
      */
-    void update(List<PrioPair<AlgorithmPoint,Double>> N, AlgorithmPoint p)
+    void update(List<List<PrioPair<AlgorithmPoint,Double>>> N, AlgorithmPoint p, double coredist)
     {
-        double coredist = coreDistance(N, p);
-
-        for (PrioPair<AlgorithmPoint,Double> pair : N) {
+        //System.out.println("Eneigh: " + N.get(1).size());
+        for (PrioPair<AlgorithmPoint,Double> pair : N.get(1)) {
             AlgorithmPoint o = pair.getT();
-            if (!pair.getT().isProcessed()) {
+            if (!o.isProcessed() || o.getReachabilityDistance() == UNDEFINED) {
                 double newReachabilityDistance = Math.max(coredist, Calculations.distance(o.getPoint(), p.getPoint(), DISTANCE_METRIC));
-                //System.out.println("rea: " + newReachabilityDistance);
 
                 if (o.getReachabilityDistance() == UNDEFINED) {
                     o.setReachabilityDistance(newReachabilityDistance);
@@ -264,6 +219,7 @@ public class Optics extends Algorithm
                 } else {
                     if (newReachabilityDistance < o.getReachabilityDistance()) {
                         seeds.remove(o);
+                        o.setReachabilityDistance(newReachabilityDistance);
                         seeds.add(o);
                     }
                 }
@@ -271,9 +227,14 @@ public class Optics extends Algorithm
         }
     }
 
+    /**
+     * Write.
+     */
     void write(AlgorithmPoint op)
     {
-        if (op.getReachabilityDistance() != UNDEFINED) {
+        if (!op.isProcessed()) {
+            op.process();
+            op.setX(reachabilityPlot.size());
             reachabilityPlot.add(op);
         }
     }
@@ -323,7 +284,7 @@ public class Optics extends Algorithm
 
         public int compareTo(PrioPair<T,V> c)
         {
-            // to reverse the priority queue
+            // to reverse the priority queue, to a max-PriorityQueue
             return v.compareTo(c.getV()) * -1;
         }
     }

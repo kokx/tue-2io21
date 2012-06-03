@@ -77,4 +77,40 @@ public class Field
         key += y;
         return key;
     }
+
+    /**
+     * Get the width of the field.
+     */
+    public long getWidth()
+    {
+        return (long) (max_x - min_x);
+    }
+
+    /**
+     * Get the height of the field.
+     */
+    public long getHeight()
+    {
+        return (long) (max_y - min_y);
+    }
+
+    public int getMaxX()
+    {
+        return max_x;
+    }
+
+    public int getMinX()
+    {
+        return min_x;
+    }
+
+    public int getMaxY()
+    {
+        return max_y;
+    }
+
+    public int getMinY()
+    {
+        return min_y;
+    }
 }
