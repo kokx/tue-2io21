@@ -75,7 +75,7 @@ class Main {
 
         algo.setField(f);
 
-        algo.findParameters(ci, cj, n);
+        algo.findParameters(ci, cj, n, f.getWidth(), f.getHeight());
 
         algo.run();
 

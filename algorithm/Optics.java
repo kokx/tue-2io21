@@ -47,13 +47,37 @@ public class Optics extends Algorithm
      * @param cj Maximum number of clusters
      * @param n Number of points
      */
-    public void findParameters(int ci, int cj, int n)
+    public void findParameters(int ci, int cj, int n, long width, long height)
     {
-        super.findParameters(ci, cj, n);
+        super.findParameters(ci, cj, n, width, height);
 
-        this.epsilon = 100000000.0;
-        this.minPts = 5;
-        this.minClusterSize = 1;
+        // first the epsilon
+        // Z = w + h
+        // epsilon = Z / sqrt(n)
+        double Z = width + height;
+
+        epsilon = Z / Math.sqrt(n);
+        //System.out.println("E: " + epsilon + " n: " + n + " Z: " + Z + " w: " + width + " h: " + height);
+
+        // now the minPts. We want to make sure that this is not too big,
+        // because that will decrease the running time fast
+        // thus, we give it a maximum value of 40, also, a minimum of 8
+        // We'll take sqrt(n / cj)
+        minPts = (int) Math.pow(n / cj, 1.0/2.5);
+
+        if (minPts < 8) {
+            minPts = 8;
+        } else if (minPts > 40) {
+            minPts = 40;
+        }
+        // TODO: tune this
+        System.out.println("minPts: " + minPts + " n: " + n + " cj: " + cj + " n/cj: " + n / cj);
+
+        // the minClusterSize is slightly different, making this bigger on
+        // bigger datasets, will make the finding of clusters faster. But
+        // making it too small on big datasets will
+        // TODO: Implement something like this.
+        minClusterSize = 10;
 
         if (DISTANCE_METRIC == Calculations.DISTANCE_EUCLIDIAN_SQ) {
             epsilon = epsilon * epsilon;
@@ -70,6 +94,8 @@ public class Optics extends Algorithm
             AlgorithmPoint op = new AlgorithmPoint(p);
             points.add(op);
         }
+
+        points.addAll(createNoise());
 
         // initialize the Priority Queue
         seeds = new PriorityQueue<AlgorithmPoint>();
@@ -182,6 +208,7 @@ public class Optics extends Algorithm
      */
     void update(List<List<PrioPair<AlgorithmPoint,Double>>> N, AlgorithmPoint p, double coredist)
     {
+        //System.out.println("Eneigh: " + N.get(1).size());
         for (PrioPair<AlgorithmPoint,Double> pair : N.get(1)) {
             AlgorithmPoint o = pair.getT();
             if (!o.isProcessed() || o.getReachabilityDistance() == UNDEFINED) {

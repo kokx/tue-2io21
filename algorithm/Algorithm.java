@@ -18,7 +18,7 @@ public abstract class Algorithm
     /**
      * Ratio for determining if a point is a local maxima point.
      */
-    public final static double DENSITY_RATIO = 0.85;
+    public final static double DENSITY_RATIO = 0.90;
 
     /**
      * Treshold for determining if a local maxima is too similiar to its parent.
@@ -58,16 +58,51 @@ public abstract class Algorithm
     // abstract methods
 
     /**
-     * Find the parameters
+     * Find the parameters.
      *
      * @param ci Minimum number of clusters
      * @param cj Maximum number of clusters
      * @param n Number of points
+     * @param width Field width
+     * @param height Field height
      */
-    public void findParameters(int ci, int cj, int n)
+    public void findParameters(int ci, int cj, int n, long width, long height)
     {
         this.ci = ci;
         this.cj = cj;
+    }
+
+    /**
+     * Create noise.
+     *
+     * At least 10 points, at most 1000 points.
+     *
+     * Input size / 100.
+     */
+    public List<AlgorithmPoint> createNoise()
+    {
+        ArrayList<AlgorithmPoint> noise = new ArrayList<AlgorithmPoint>();
+
+        Random rand = new Random();
+
+        int num = field.size() / 100;
+
+        if (num < 10) {
+            num = 10;
+        } else if (num > 100) {
+            num = 100;
+        }
+
+        for (int i = 0; i < num; i++) {
+            int x, y;
+            do {
+                x = field.getMinX() + rand.nextInt((int) field.getWidth());
+                y = field.getMinY() + rand.nextInt((int) field.getHeight());
+            } while (field.hasPoint(x, y));
+            noise.add(new AlgorithmPoint(new Point(x, y, 0)));
+        }
+
+        return noise;
     }
 
     /**
