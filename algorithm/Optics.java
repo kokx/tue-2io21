@@ -113,7 +113,7 @@ public class Optics extends Algorithm
 
     void expandClusterOrder(AlgorithmPoint p)
     {
-        List<List<PrioPair<AlgorithmPoint,Double>>> N = getNeighbours(p);
+        List<List<AlgorithmPoint>> N = getNeighbours(p);
 
         write(p);
 
@@ -125,7 +125,7 @@ public class Optics extends Algorithm
             AlgorithmPoint q;
 
             while ((q = seeds.poll()) != null) {
-                List<List<PrioPair<AlgorithmPoint,Double>>> N_ = getNeighbours(q);
+                List<List<AlgorithmPoint>> N_ = getNeighbours(q);
 
                 write(q);
 
@@ -138,10 +138,10 @@ public class Optics extends Algorithm
         }
     }
 
-    double coreDistance(List<List<PrioPair<AlgorithmPoint,Double>>> N, AlgorithmPoint p)
+    double coreDistance(List<List<AlgorithmPoint>> N, AlgorithmPoint p)
     {
         if (N.get(1).size() >= minPts) {
-            return N.get(0).get(0).getV().doubleValue();
+            return Calculations.distance(N.get(0).get(0).getPoint(), p.getPoint(), DISTANCE_METRIC);
         }
         return UNDEFINED;
     }
@@ -155,11 +155,11 @@ public class Optics extends Algorithm
      *          - The first one contains the nearest neighbours. (size should be minPts)
      *          - The second one contains the epsilon-neighbourhood.
      */
-    List<List<PrioPair<AlgorithmPoint,Double>>> getNeighbours(AlgorithmPoint p)
+    List<List<AlgorithmPoint>> getNeighbours(AlgorithmPoint p)
     {
         PriorityQueue<PrioPair<AlgorithmPoint,Double>> pq = new PriorityQueue<PrioPair<AlgorithmPoint,Double>>();
 
-        List<PrioPair<AlgorithmPoint,Double>> epsilonRangeList = new ArrayList<PrioPair<AlgorithmPoint,Double>>();
+        List<AlgorithmPoint> epsilonRangeList = new ArrayList<AlgorithmPoint>();
 
         for (AlgorithmPoint q : points) {
             if (q == p) {
@@ -171,7 +171,7 @@ public class Optics extends Algorithm
             PrioPair<AlgorithmPoint,Double> pair = new PrioPair<AlgorithmPoint,Double>(q, dist);
 
             if (dist <= epsilon) {
-                epsilonRangeList.add(pair);
+                epsilonRangeList.add(q);
             }
 
             // add the pair
@@ -186,15 +186,15 @@ public class Optics extends Algorithm
             }
         }
 
-        List<PrioPair<AlgorithmPoint,Double>> nextNeighbours = new ArrayList<PrioPair<AlgorithmPoint,Double>>();
+        List<AlgorithmPoint> nextNeighbours = new ArrayList<AlgorithmPoint>();
         PrioPair<AlgorithmPoint,Double> pair;
 
         // basically the last step of HeapSort
         while ((pair = pq.poll()) != null) {
-            nextNeighbours.add(pair);
+            nextNeighbours.add(pair.getT());
         }
 
-        List<List<PrioPair<AlgorithmPoint,Double>>> result = new ArrayList<List<PrioPair<AlgorithmPoint,Double>>>();
+        List<List<AlgorithmPoint>> result = new ArrayList<List<AlgorithmPoint>>(2);
 
         result.add(nextNeighbours);
         result.add(epsilonRangeList);
@@ -205,11 +205,10 @@ public class Optics extends Algorithm
     /**
      * Update method
      */
-    void update(List<List<PrioPair<AlgorithmPoint,Double>>> N, AlgorithmPoint p, double coredist)
+    void update(List<List<AlgorithmPoint>> N, AlgorithmPoint p, double coredist)
     {
         //System.out.println("Eneigh: " + N.get(1).size());
-        for (PrioPair<AlgorithmPoint,Double> pair : N.get(1)) {
-            AlgorithmPoint o = pair.getT();
+        for (AlgorithmPoint o : N.get(1)) {
             if (!o.isProcessed() || o.getReachabilityDistance() == UNDEFINED) {
                 double newReachabilityDistance = Math.max(coredist, Calculations.distance(o.getPoint(), p.getPoint(), DISTANCE_METRIC));
 
