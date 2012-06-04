@@ -54,7 +54,7 @@ public class RTree
 
         // filter out points not in epsilon range
         for (AlgorithmPoint p : temp) {
-            if (Calculations.distance(point.getPoint(), p.getPoint(), Algorithm.DISTANCE_METRIC) <= epsilon) {
+            if (Calculations.distance(point.getPoint(), p.getPoint(), Algorithm.DISTANCE_METRIC) <= epsilon && p != point) {
                 result.add(p);
             }
         }
@@ -71,15 +71,65 @@ public class RTree
      */
     public List<AlgorithmPoint> getNeighbours(AlgorithmPoint point, double epsilon, int k)
     {
-        // TODO: Implement this method
+        List<AlgorithmPoint> neighbours = getNeighbours(point, epsilon);
 
         // first we create a max priority queue
 
-        // then we search for the neighbours in the rectangles next to the
-        // point
+        PriorityQueue<PrioPair<AlgorithmPoint,Double>> pq = new PriorityQueue<PrioPair<AlgorithmPoint,Double>>();
+
+        for (AlgorithmPoint q : neighbours) {
+            double dist = Calculations.distance(point.getPoint(), q.getPoint(), Algorithm.DISTANCE_METRIC);
+
+            PrioPair<AlgorithmPoint,Double> pair = new PrioPair<AlgorithmPoint,Double>(q, dist);
+
+            if (pq.size() <= k) {
+                pq.add(pair);
+            } else {
+                if (dist < ((Double) pq.peek().getV())) {
+                    // remove the highest element
+                    pq.poll();
+                    pq.add(pair);
+                }
+            }
+        }
+
+        // now we make the list
 
         List<AlgorithmPoint> result = new ArrayList<AlgorithmPoint>();
+        PrioPair<AlgorithmPoint,Double> pair;
+
+        while ((pair = pq.poll()) != null) {
+            result.add(pair.getT());
+        }
 
         return result;
+    }
+
+    class PrioPair<T,V extends Comparable<V>> implements Comparable<PrioPair<T,V>>
+    {
+        T t;
+        V v;
+
+        public PrioPair(T t, V v)
+        {
+            this.t = t;
+            this.v = v;
+        }
+
+        public T getT()
+        {
+            return t;
+        }
+
+        public V getV()
+        {
+            return v;
+        }
+
+        public int compareTo(PrioPair<T,V> c)
+        {
+            // we do this to reverse the priority queue, to get a max-PriorityQueue
+            return v.compareTo(c.getV()) * -1;
+        }
     }
 }
