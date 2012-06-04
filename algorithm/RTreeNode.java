@@ -14,7 +14,7 @@ public class RTreeNode
     /**
      * Max number of nodes in bounding box.
      */
-    public final static int MAX_POINTS = 2;
+    public final static int MIN_POINTS = 2;
 
     /**
      * Start of the bounding box.
@@ -45,6 +45,11 @@ public class RTreeNode
     RTreeNode child1, child2, child3, child4;
 
     /**
+     * Parent node.
+     */
+    RTreeNode parent;
+
+    /**
      * Create an RTreeNode with a set of points.
      *
      * @param startx start of the bounding box x-coordinate
@@ -52,9 +57,9 @@ public class RTreeNode
      * @param size size of the bounding box
      * @param points Collection of points to add to the node.
      */
-    public RTreeNode(int startx, int starty, int size, Collection<AlgorithmPoint> points)
+    public RTreeNode(RTreeNode parent, int startx, int starty, int size, Collection<AlgorithmPoint> points)
     {
-        this(startx, starty, size);
+        this(parent, startx, starty, size);
 
         addPoints(points);
     }
@@ -66,8 +71,9 @@ public class RTreeNode
      * @param starty start of the bounding box y-coordinate
      * @param size size of the bounding box
      */
-    public RTreeNode(int startx, int starty, int size)
+    public RTreeNode(RTreeNode parent, int startx, int starty, int size)
     {
+        this.parent = parent;
         this.startx = startx;
         this.starty = starty;
         this.size = size;
@@ -128,7 +134,7 @@ public class RTreeNode
     public void build()
     {
         // if we do not have enough points, we don't build this node
-        if (points.size() <= MAX_POINTS) {
+        if (points.size() <= MIN_POINTS) {
             return;
         }
         int newSize = size / 2;
@@ -140,10 +146,10 @@ public class RTreeNode
          * | 3 | 4 |
          * +---+---+
          */
-        child1 = new RTreeNode(startx, starty, newSize);
-        child2 = new RTreeNode(startx + newSize, starty, size - newSize);
-        child3 = new RTreeNode(startx, starty + newSize, size - newSize);
-        child4 = new RTreeNode(startx + newSize, starty + newSize, size - newSize);
+        child1 = new RTreeNode(this, startx, starty, newSize);
+        child2 = new RTreeNode(this, startx + newSize, starty, size - newSize);
+        child3 = new RTreeNode(this, startx, starty + newSize, size - newSize);
+        child4 = new RTreeNode(this, startx + newSize, starty + newSize, size - newSize);
 
         // partition the points into the children
         for (AlgorithmPoint p : points) {
@@ -163,5 +169,63 @@ public class RTreeNode
         child2.build();
         child3.build();
         child4.build();
+    }
+
+    /**
+     * Find all the nodes in the box.
+     *
+     * @pre The box has overlap with this node
+     *
+     * @param box
+     *
+     * @return nodes in the box
+     */
+    public List<AlgorithmPoint> findOverlapPoints(RTreeNode box)
+    {
+        // if we have complete overlap, return all points
+        if (hasCompleteOverlap(box) || points.size() <= MIN_POINTS) {
+            return points;
+        }
+
+        List<AlgorithmPoint> result = new ArrayList<AlgorithmPoint>();
+
+        if (child1.hasOverlap(box)) {
+            result.addAll(child1.findOverlapPoints(box));
+        }
+        if (child2.hasOverlap(box)) {
+            result.addAll(child2.findOverlapPoints(box));
+        }
+        if (child3.hasOverlap(box)) {
+            result.addAll(child3.findOverlapPoints(box));
+        }
+        if (child4.hasOverlap(box)) {
+            result.addAll(child4.findOverlapPoints(box));
+        }
+
+        return result;
+    }
+
+    /**
+     * Check if the method has overlap with a bounding box.
+     *
+     * @param box
+     *
+     * @return boolean
+     */
+    public boolean hasOverlap(RTreeNode box)
+    {
+        return false;
+    }
+
+    /**
+     * Check if the method has complete overlap with a bounding box.
+     *
+     * @param box
+     *
+     * @return boolean
+     */
+    public boolean hasCompleteOverlap(RTreeNode box)
+    {
+        return false;
     }
 }

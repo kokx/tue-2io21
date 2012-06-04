@@ -27,8 +27,26 @@ public class RTree
     public RTree(Collection<AlgorithmPoint> points, int startx, int starty, int size)
     {
         // create and build the tree
-        root = new RTreeNode(startx, starty, size + 1, points);
+        root = new RTreeNode(null, startx, starty, size + 1, points);
         root.build();
+    }
+
+    /**
+     * Epsilon neighbourhood.
+     *
+     * @param point
+     * @param epsilon
+     *
+     * @return Epsilon neighbourhood
+     */
+    public List<AlgorithmPoint> getNeighbours(AlgorithmPoint point, double epsilon)
+    {
+        int eps = (int) Math.ceil(epsilon);
+        int x = point.getPoint().getX() - eps;
+        int y = point.getPoint().getY() - eps;
+
+        // bounding box for the query
+        RTreeNode box = new RTreeNode(x, y, eps * 2);
     }
 
     /**
@@ -41,6 +59,6 @@ public class RTree
      */
     public RTreeNode findBox(AlgorithmPoint p)
     {
-        return null;
+        root.findBox(p);
     }
 }
