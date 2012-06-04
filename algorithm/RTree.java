@@ -25,6 +25,20 @@ public class RTree
      */
     public RTree(Collection<AlgorithmPoint> points, int startx, int starty, int size)
     {
+        // create and build the tree
         root = new RTreeNode(startx, starty, size, points);
+        root.build();
+    }
+
+    /**
+     * Query the tree.
+     *
+     * @param x X coordinate to look for.
+     * @param y Y coordinate to look for.
+     *
+     * @return The point we have found, null if there is no point in that position.
+     */
+    public AlgorithmPoint query(int x, int y)
+    {
     }
 }
