@@ -46,19 +46,12 @@ public class RTree
         int y = point.getPoint().getY() - eps;
 
         // bounding box for the query
-        RTreeNode box = new RTreeNode(x, y, eps * 2);
-    }
+        RTreeNode box = new RTreeNode(null, x, y, eps * 2);
 
-    /**
-     * Query the tree.
-     *
-     * @param x X coordinate to look for.
-     * @param y Y coordinate to look for.
-     *
-     * @return The point we have found, null if there is no point in that position.
-     */
-    public RTreeNode findBox(AlgorithmPoint p)
-    {
-        root.findBox(p);
+        List<AlgorithmPoint> result = root.findOverlapPoints(box);
+
+        // TODO: filter out points not in epsilon range
+
+        return result;
     }
 }

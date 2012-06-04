@@ -127,6 +127,36 @@ public class RTreeNode
     }
 
     /**
+     * Get the startx.
+     *
+     * @return startx
+     */
+    public int getStartX()
+    {
+        return startx;
+    }
+
+    /**
+     * Get the starty.
+     *
+     * @return starty
+     */
+    public int getStartY()
+    {
+        return starty;
+    }
+
+    /**
+     * Get the size (height and width).
+     *
+     * @return size
+     */
+    public int getSize()
+    {
+        return size;
+    }
+
+    /**
      * Build the node.
      *
      * @param points Collection of points
@@ -182,13 +212,14 @@ public class RTreeNode
      */
     public List<AlgorithmPoint> findOverlapPoints(RTreeNode box)
     {
-        // if we have complete overlap, return all points
+        // if we have complete overlap, or just a few points in the box, return all points
         if (hasCompleteOverlap(box) || points.size() <= MIN_POINTS) {
             return points;
         }
 
         List<AlgorithmPoint> result = new ArrayList<AlgorithmPoint>();
 
+        // recursively call the method when there is overlap
         if (child1.hasOverlap(box)) {
             result.addAll(child1.findOverlapPoints(box));
         }
@@ -214,11 +245,44 @@ public class RTreeNode
      */
     public boolean hasOverlap(RTreeNode box)
     {
-        return false;
+        int maxx = startx + size;
+        int maxy = starty + size;
+
+        int bmaxx = box.getStartX() + box.getSize();
+        int bmaxy = box.getStartY() + box.getSize();
+
+        // first check for overlap in the x direction
+        if (startx > box.getStartX()) {
+            if (bmaxx < startx) {
+                return false;
+            }
+        } else {
+            if (maxx < box.getStartX()) {
+                return false;
+            }
+        }
+
+        // if we have gotten here, it checks out in the x-direction
+        // now we check the y-direction
+        if (starty > box.getStartY()) {
+            if (bmaxy < starty) {
+                return false;
+            }
+        } else {
+            if (maxy < box.getStartY()) {
+                return false;
+            }
+        }
+
+        // ok, it all checks out
+        return true;
     }
 
     /**
-     * Check if the method has complete overlap with a bounding box.
+     * Check if this bounding box has complete overlap with a bounding box.
+     *
+     * This doesn't do much for the worst-case running time, but will
+     * definitely improve the expected running time.
      *
      * @param box
      *
@@ -226,6 +290,9 @@ public class RTreeNode
      */
     public boolean hasCompleteOverlap(RTreeNode box)
     {
-        return false;
+        return box.getSize() >= size
+            && box.getStartX() <= startx && box.getStartY() <= starty
+            && box.getStartX() + box.getSize() >= startx + size
+            && box.getStartY() + box.getSize() >= starty + size;
     }
 }
