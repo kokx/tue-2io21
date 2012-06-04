@@ -37,10 +37,7 @@ public class RTreeNode
      * | 3 | 4 |
      * +---+---+
      */
-    RTreeNode child1;
-    RTreeNode child2;
-    RTreeNode child3;
-    RTreeNode child4;
+    RTreeNode child1, child2, child3, child4;
 
     /**
      * Create an RTreeNode with a set of points.
@@ -82,7 +79,20 @@ public class RTreeNode
     {
         Point p = ap.getPoint();
 
-        return p.getX() >= startx && p.getY() >= starty && p.getX() < startx + size && p.getY() < starty + size;
+        return inBoundingBox(p.getX(), p.getY());
+    }
+
+    /**
+     * Check if a point is in the bounding box of this node.
+     *
+     * @param x X coordinate of the point
+     * @param y Y coordinate of the point
+     *
+     * @return If the point is in the bounding box of this node.
+     */
+    public boolean inBoundingBox(int x, int y)
+    {
+        return x >= startx && y >= starty && x < startx + size && y < starty + size;
     }
 
     /**
@@ -114,6 +124,7 @@ public class RTreeNode
     {
         // TODO: first determine the bounding boxes of the children
 
+        // partition the points into the children
         for (AlgorithmPoint p : points) {
             if (child1.inBoundingBox(p)) {
                 child1.addPoint(p);
