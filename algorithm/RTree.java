@@ -69,7 +69,7 @@ public class RTree
      *
      * @return K nearest neighbours, sorted, K-th neighbour first
      */
-    public List<AlgorithmPoint> getNeighbours(AlgorithmPoint point, double epsilon, int k)
+    public List<List<AlgorithmPoint>> getNeighbours(AlgorithmPoint point, double epsilon, int k)
     {
         List<AlgorithmPoint> neighbours = getNeighbours(point, epsilon);
 
@@ -95,12 +95,17 @@ public class RTree
 
         // now we make the list
 
-        List<AlgorithmPoint> result = new ArrayList<AlgorithmPoint>();
+        List<AlgorithmPoint> knn = new ArrayList<AlgorithmPoint>();
         PrioPair<AlgorithmPoint,Double> pair;
 
         while ((pair = pq.poll()) != null) {
-            result.add(pair.getT());
+            knn.add(pair.getT());
         }
+
+        List<List<AlgorithmPoint>> result = new ArrayList<List<AlgorithmPoint>>(2);
+
+        result.add(knn);
+        result.add(neighbours);
 
         return result;
     }
