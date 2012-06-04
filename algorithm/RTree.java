@@ -69,7 +69,7 @@ public class RTree
      *
      * @return K nearest neighbours, sorted, K-th neighbour first
      */
-    public List<AlgorithmPoint> getNeighbours(AlgorithmPoint point, int k)
+    public List<AlgorithmPoint> getNeighbours(AlgorithmPoint point, double epsilon, int k)
     {
         // TODO: Implement this method
 
