@@ -34,14 +34,19 @@ public abstract class Algorithm
     protected int minClusterSize;
 
     /**
-     * Mininmum of found clusters.
+     * Mininmum (ci) and maximum (cj) of found clusters.
      */
-    protected int ci;
+    protected int ci, cj;
 
     /**
-     * Maximum of found clusters.
+     * Width and height.
      */
-    protected int cj;
+    protected long width, height;
+
+    /**
+     * Startx and starty.
+     */
+    protected int startx, starty;
 
     /**
      * Reachability plot
@@ -66,10 +71,16 @@ public abstract class Algorithm
      * @param width Field width
      * @param height Field height
      */
-    public void findParameters(int ci, int cj, int n, long width, long height)
+    public void findParameters(int ci, int cj, int n, long width, long height, int startx, int starty)
     {
         this.ci = ci;
         this.cj = cj;
+
+        this.width = width;
+        this.height = height;
+
+        this.startx = startx;
+        this.starty = starty;
     }
 
     /**

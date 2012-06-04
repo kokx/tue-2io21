@@ -21,9 +21,9 @@ public class Optics extends Algorithm
     PriorityQueue<AlgorithmPoint> seeds;
 
     /**
-     * Map of points.
+     * Map of points, using a spatial index structure to speed up things.
      */
-    ArrayList<AlgorithmPoint> points;
+    RTree points;
 
     /**
      * Parameters.
@@ -47,9 +47,9 @@ public class Optics extends Algorithm
      * @param cj Maximum number of clusters
      * @param n Number of points
      */
-    public void findParameters(int ci, int cj, int n, long width, long height)
+    public void findParameters(int ci, int cj, int n, long width, long height, int startx, int starty)
     {
-        super.findParameters(ci, cj, n, width, height);
+        super.findParameters(ci, cj, n, width, height, startx, starty);
 
         // first the epsilon
         // Z = w + h
@@ -85,22 +85,33 @@ public class Optics extends Algorithm
 
     public void run()
     {
-        points = new ArrayList<AlgorithmPoint>();
+        // start out with a simple list as storage
+        List<AlgorithmPoint> data = new ArrayList<AlgorithmPoint>(field.size());
 
         reachabilityPlot = new ArrayList<AlgorithmPoint>(field.size());
 
         for (Point p : field.getAllPoints()) {
             AlgorithmPoint op = new AlgorithmPoint(p);
-            points.add(op);
+            data.add(op);
         }
 
-        points.addAll(createNoise());
+        data.addAll(createNoise());
 
-        // initialize the Priority Queue
+        // determine the dimensions of the data field
+
+        int size = (int) height;
+
+        if (width > height) {
+            size = (int) width;
+        }
+
+        // initialize the RTree
+        points = new RTree(data, startx, starty, size);
+
+        // initialize the seeds Priority Queue
         seeds = new PriorityQueue<AlgorithmPoint>();
 
-
-        for (AlgorithmPoint p : points) {
+        for (AlgorithmPoint p : data) {
             if (p.isProcessed()) {
                 continue;
             }
@@ -157,49 +168,7 @@ public class Optics extends Algorithm
      */
     List<List<AlgorithmPoint>> getNeighbours(AlgorithmPoint p)
     {
-        PriorityQueue<PrioPair<AlgorithmPoint,Double>> pq = new PriorityQueue<PrioPair<AlgorithmPoint,Double>>();
-
-        List<AlgorithmPoint> epsilonRangeList = new ArrayList<AlgorithmPoint>();
-
-        for (AlgorithmPoint q : points) {
-            if (q == p) {
-                continue;
-            }
-
-            double dist = Calculations.distance(p.getPoint(), q.getPoint(), DISTANCE_METRIC);
-
-            PrioPair<AlgorithmPoint,Double> pair = new PrioPair<AlgorithmPoint,Double>(q, dist);
-
-            if (dist <= epsilon) {
-                epsilonRangeList.add(q);
-            }
-
-            // add the pair
-            if (pq.size() < minPts) {
-                pq.add(pair);
-            } else {
-                if (dist < ((Double) pq.peek().getV())) {
-                    // remove the highest element
-                    pq.poll();
-                    pq.add(pair);
-                }
-            }
-        }
-
-        List<AlgorithmPoint> nextNeighbours = new ArrayList<AlgorithmPoint>();
-        PrioPair<AlgorithmPoint,Double> pair;
-
-        // basically the last step of HeapSort
-        while ((pair = pq.poll()) != null) {
-            nextNeighbours.add(pair.getT());
-        }
-
-        List<List<AlgorithmPoint>> result = new ArrayList<List<AlgorithmPoint>>(2);
-
-        result.add(nextNeighbours);
-        result.add(epsilonRangeList);
-
-        return result;
+        return points.getNeighbours(p, epsilon, minPts);
     }
 
     /**

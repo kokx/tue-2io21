@@ -27,9 +27,9 @@ public class Allnoise extends Algorithm
      * @param cj Maximum number of clusters
      * @param n Number of points
      */
-    public void findParameters(int ci, int cj, int n, long width, long height)
+    public void findParameters(int ci, int cj, int n, long width, long height, int startx, int starty)
     {
-        super.findParameters(ci, cj, n, width, height);
+        super.findParameters(ci, cj, n, width, height, startx, starty);
     }
 
     public void run()
