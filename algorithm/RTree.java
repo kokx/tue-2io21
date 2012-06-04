@@ -34,8 +34,8 @@ public class RTree
     /**
      * Epsilon neighbourhood.
      *
-     * @param point
-     * @param epsilon
+     * @param point Point to search from
+     * @param epsilon Distance in all directions to search
      *
      * @return Epsilon neighbourhood
      */
@@ -54,10 +54,31 @@ public class RTree
 
         // filter out points not in epsilon range
         for (AlgorithmPoint p : temp) {
-            if (Calculations.distance(point, p, Algorithm.DISTANCE_METRIC) <= epsilon) {
+            if (Calculations.distance(point.getPoint(), p.getPoint(), Algorithm.DISTANCE_METRIC) <= epsilon) {
                 result.add(p);
             }
         }
+
+        return result;
+    }
+
+    /**
+     * Get the k-th nearest point.
+     *
+     * @param point Point to search from
+     *
+     * @return K nearest neighbours, sorted, K-th neighbour first
+     */
+    public List<AlgorithmPoint> getNeighbours(AlgorithmPoint point, int k)
+    {
+        // TODO: Implement this method
+
+        // first we create a max priority queue
+
+        // then we search for the neighbours in the rectangles next to the
+        // point
+
+        List<AlgorithmPoint> result = new ArrayList<AlgorithmPoint>();
 
         return result;
     }
