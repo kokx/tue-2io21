@@ -32,7 +32,7 @@ class Main {
 
         for (int i = 0; sc.hasNextInt(); i++) {
             cluster.add(sc.nextInt());
-            reachability.add(sc.nextDouble());
+            reachability.add(Double.parseDouble(sc.next()));
 
             if (reachability.get(i) > max) {
                 max = reachability.get(i);
