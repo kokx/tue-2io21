@@ -28,6 +28,14 @@ public class RTreeNode
 
     /**
      * Child nodes.
+     *
+     * Order of child nodes in the bounding box of this object:
+     *
+     * +---+---+
+     * | 1 | 2 |
+     * +---+---+
+     * | 3 | 4 |
+     * +---+---+
      */
     RTreeNode child1;
     RTreeNode child2;
@@ -35,7 +43,22 @@ public class RTreeNode
     RTreeNode child4;
 
     /**
-     * Constructor.
+     * Create an RTreeNode with a set of points.
+     *
+     * @param startx start of the bounding box x-coordinate
+     * @param starty start of the bounding box y-coordinate
+     * @param size size of the bounding box
+     * @param points Collection of points to add to the node.
+     */
+    public RTreeNode(int startx, int starty, int size, Collection<AlgorithmPoint> points)
+    {
+        this(startx, starty, size);
+
+        addAll(points);
+    }
+
+    /**
+     * Create an RTreeNode.
      *
      * @param startx start of the bounding box x-coordinate
      * @param starty start of the bounding box y-coordinate
@@ -102,5 +125,11 @@ public class RTreeNode
                 child4.addPoint(p);
             }
         }
+
+        // recursively call this method on the children
+        child1.build();
+        child2.build();
+        child3.build();
+        child4.build();
     }
 }
