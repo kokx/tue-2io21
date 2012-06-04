@@ -48,9 +48,16 @@ public class RTree
         // bounding box for the query
         RTreeNode box = new RTreeNode(null, x, y, eps * 2);
 
-        List<AlgorithmPoint> result = root.findOverlapPoints(box);
+        List<AlgorithmPoint> temp = root.findOverlapPoints(box);
 
-        // TODO: filter out points not in epsilon range
+        List<AlgorithmPoint> result = new ArrayList<AlgorithmPoint>();
+
+        // filter out points not in epsilon range
+        for (AlgorithmPoint p : temp) {
+            if (Calculations.distance(point, p, Algorithm.DISTANCE_METRIC) <= epsilon) {
+                result.add(p);
+            }
+        }
 
         return result;
     }
