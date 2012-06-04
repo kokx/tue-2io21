@@ -56,7 +56,7 @@ public class RTreeNode
     {
         this(startx, starty, size);
 
-        addAll(points);
+        addPoints(points);
     }
 
     /**

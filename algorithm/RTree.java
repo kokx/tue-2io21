@@ -10,6 +10,7 @@ import model.*;
  */
 public class RTree
 {
+
     /**
      * Root of the tree.
      */
@@ -38,7 +39,8 @@ public class RTree
      *
      * @return The point we have found, null if there is no point in that position.
      */
-    public AlgorithmPoint query(int x, int y)
+    public RTreeNode findBox(AlgorithmPoint p)
     {
+        return null;
     }
 }
