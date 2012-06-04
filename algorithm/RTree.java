@@ -26,7 +26,7 @@ public class RTree
     public RTree(Collection<AlgorithmPoint> points, int startx, int starty, int size)
     {
         // create and build the tree
-        root = new RTreeNode(startx, starty, size, points);
+        root = new RTreeNode(startx, starty, size + 1, points);
         root.build();
     }
 

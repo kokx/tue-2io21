@@ -12,6 +12,11 @@ public class RTreeNode
 {
 
     /**
+     * Max number of nodes in bounding box.
+     */
+    public final static int MAX_POINTS = 2;
+
+    /**
      * Start of the bounding box.
      */
     int startx, starty;
@@ -122,7 +127,23 @@ public class RTreeNode
      */
     public void build()
     {
-        // TODO: first determine the bounding boxes of the children
+        // if we do not have enough points, we don't build this node
+        if (points.size() <= MAX_POINTS) {
+            return;
+        }
+        int newSize = size / 2;
+
+        /*
+         * +---+---+
+         * | 1 | 2 |
+         * +---+---+
+         * | 3 | 4 |
+         * +---+---+
+         */
+        child1 = new RTreeNode(startx, starty, newSize);
+        child2 = new RTreeNode(startx + newSize, starty, size - newSize);
+        child3 = new RTreeNode(startx, starty + newSize, size - newSize);
+        child4 = new RTreeNode(startx + newSize, starty + newSize, size - newSize);
 
         // partition the points into the children
         for (AlgorithmPoint p : points) {
