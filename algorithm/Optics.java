@@ -13,6 +13,10 @@ import algorithm.*;
 public class Optics extends Algorithm
 {
 
+    // maximum epsilon
+    public final static double MAX_EPSILON_NEIGHBOURHOOD = 1000;
+    public final static double IDEAL_EPSILON_NEIGHBOURHOOD = 300;
+
     /**
      * Seeds queue.
      *
@@ -31,6 +35,12 @@ public class Optics extends Algorithm
     double epsilon;
     int minPts;
 
+    /**
+     * Value that shows if we restart the algorithm.
+     *
+     * This is used to lower the epsilon-value if the epsilon-neighbourhood is too large.
+     */
+    boolean restart = false;
 
     /**
      * Constructor.
@@ -56,8 +66,9 @@ public class Optics extends Algorithm
         // epsilon = Z / sqrt(n)
         double Z = width + height;
 
-        epsilon = Z / Math.sqrt(n);
+        epsilon = Z / Math.pow(n, 1.0/2.1);
         //System.out.println("E: " + epsilon + " n: " + n + " Z: " + Z + " w: " + width + " h: " + height);
+        //epsilon = 39138;
 
         // now the minPts. We want to make sure that this is not too big,
         // because that will decrease the running time fast
@@ -76,7 +87,11 @@ public class Optics extends Algorithm
         // bigger datasets, will make the finding of clusters faster. But
         // making it too small on big datasets will make it a weird output.
         minClusterSize = (n/3) / cj;
-        //System.out.println("minClusterSize: " + minClusterSize + " n / 3: " + n / 3+ " cj: " + cj + " (n / 3) / cj: " + (n / 3) / cj);
+
+        if (minClusterSize > 300) {
+            minClusterSize = 300;
+        }
+        //System.out.println("minClusterSize: " + minClusterSize + " n / 4: " + n / 4 + " cj: " + cj);
 
         if (DISTANCE_METRIC == Calculations.DISTANCE_EUCLIDIAN_SQ) {
             epsilon = epsilon * epsilon;
@@ -87,8 +102,6 @@ public class Optics extends Algorithm
     {
         // start out with a simple list as storage
         List<AlgorithmPoint> data = new ArrayList<AlgorithmPoint>(field.size());
-
-        reachabilityPlot = new ArrayList<AlgorithmPoint>(field.size());
 
         for (Point p : field.getAllPoints()) {
             AlgorithmPoint op = new AlgorithmPoint(p);
@@ -108,23 +121,42 @@ public class Optics extends Algorithm
         // initialize the RTree
         points = new RTree(data, startx, starty, size);
 
-        // initialize the seeds Priority Queue
-        seeds = new PriorityQueue<AlgorithmPoint>();
+        do {
+            reachabilityPlot = new ArrayList<AlgorithmPoint>(field.size());
 
-        for (AlgorithmPoint p : data) {
-            if (p.isProcessed()) {
-                continue;
+            for (AlgorithmPoint p : data) {
+                p.setReachabilityDistance(UNDEFINED);
             }
 
-            expandClusterOrder(p);
-        }
+            restart = false;
 
+            // initialize the seeds Priority Queue
+            seeds = new PriorityQueue<AlgorithmPoint>();
+
+            for (AlgorithmPoint p : data) {
+                if (p.isProcessed()) {
+                    continue;
+                }
+
+                expandClusterOrder(p);
+
+                if (restart) {
+                    break;
+                }
+            }
+        } while (restart);
+
+        // read the reachability plot and make the clustering
         cluster();
     }
 
     void expandClusterOrder(AlgorithmPoint p)
     {
         List<List<AlgorithmPoint>> N = getNeighbours(p);
+
+        if (checkEpsilon(N)) {
+            return;
+        }
 
         write(p);
 
@@ -137,6 +169,10 @@ public class Optics extends Algorithm
 
             while ((q = seeds.poll()) != null) {
                 List<List<AlgorithmPoint>> N_ = getNeighbours(q);
+
+                if (checkEpsilon(N_)) {
+                    return;
+                }
 
                 write(q);
 
@@ -176,7 +212,6 @@ public class Optics extends Algorithm
      */
     void update(List<List<AlgorithmPoint>> N, AlgorithmPoint p, double coredist)
     {
-        //System.out.println("Eneigh: " + N.get(1).size());
         for (AlgorithmPoint o : N.get(1)) {
             if (!o.isProcessed() || o.getReachabilityDistance() == UNDEFINED) {
                 double newReachabilityDistance = Math.max(coredist, Calculations.distance(o.getPoint(), p.getPoint(), DISTANCE_METRIC));
@@ -193,6 +228,24 @@ public class Optics extends Algorithm
                 }
             }
         }
+    }
+
+    /**
+     * Check if the epsilon-neighbourhood is too big, and decrease the epsilon if so.
+     */
+    boolean checkEpsilon(List<List<AlgorithmPoint>> N)
+    {
+        if (N.get(1).size() > MAX_EPSILON_NEIGHBOURHOOD) {
+            // calculate new epsilon
+            double factor = N.get(1).size() / IDEAL_EPSILON_NEIGHBOURHOOD;
+            epsilon = epsilon / factor;
+
+            // and restart
+            restart = true;
+            return true;
+        }
+
+        return false;
     }
 
     /**

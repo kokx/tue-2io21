@@ -102,6 +102,8 @@ if [ -z $file ]; then
     exit
 fi
 
+cat $file | grep "clusters"
+
 # TODO: Implement quality measure
 if [ "$R" = "t" ]; then
     run_file $file -r | java reachability.Main

@@ -86,7 +86,7 @@ public abstract class Algorithm
     /**
      * Create noise.
      *
-     * At least 10 points, at most 1000 points.
+     * We create at least 5*5 = 25 points, and at most 50*50=2500 points
      *
      * Input size / 100.
      */
@@ -96,21 +96,26 @@ public abstract class Algorithm
 
         Random rand = new Random();
 
-        int num = field.size() / 100;
+        int num = field.size() / 75;
 
-        if (num < 10) {
-            num = 10;
-        } else if (num > 100) {
-            num = 100;
+        if (num < 4) {
+            num = 4;
+        } else if (num > 50) {
+            num = 50;
         }
 
+        int width = (int) field.getWidth() / num;
+        int height = (int) field.getHeight()/ num;
+
         for (int i = 0; i < num; i++) {
-            int x, y;
-            do {
-                x = field.getMinX() + rand.nextInt((int) field.getWidth());
-                y = field.getMinY() + rand.nextInt((int) field.getHeight());
-            } while (field.hasPoint(x, y));
-            noise.add(new AlgorithmPoint(new Point(x, y, 0)));
+            for (int j = 0; j < num; j++) {
+                int x, y;
+                do {
+                    x = width * i + rand.nextInt(width);
+                    y = height * j + rand.nextInt(height);
+                } while (field.hasPoint(x, y));
+                noise.add(new AlgorithmPoint(new Point(x, y, 0)));
+            }
         }
 
         return noise;
@@ -154,6 +159,7 @@ public abstract class Algorithm
 
         clusterTree(root, null, localMaxima);
 
+        // debug
         //printTree(root);
 
         Set<ClusterNode> clusters = extractClusters(root);
@@ -195,20 +201,24 @@ public abstract class Algorithm
 
         //System.out.println("bla: " + tree.getChildren().size());
 
-        // now loop until current.size() >= ci
-        while (current.size() < ci) {
+        boolean changed = true;
+
+        // now loop until current.size() >= ci, or we don't change anything in a round
+        while (current.size() < ci && changed) {
+            changed = false;
+
             Set<ClusterNode> newCurrent = new HashSet<ClusterNode>(current.size() * 2);
             for (ClusterNode node : current) {
                 //System.out.println("size: " + node.getChildren().size());
                 if (node.getChildren().size() > 0) {
                     newCurrent.addAll(node.getChildren());
+                    changed = true;
                 } else {
                     newCurrent.add(node);
                 }
             }
 
             current = newCurrent;
-            //System.out.println("Curr: " + current.size());
         }
 
         // create a set of interesting parents
