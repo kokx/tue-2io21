@@ -203,8 +203,8 @@ public abstract class Algorithm
 
         boolean changed = true;
 
-        // now loop until current.size() >= ci, or we don't change anything in a round
-        while (current.size() < ci && changed) {
+        // now loop until current.size() >= cj, or we don't change anything in a round
+        while (current.size() < cj && changed) {
             changed = false;
 
             Set<ClusterNode> newCurrent = new HashSet<ClusterNode>(current.size() * 2);
