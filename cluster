@@ -11,7 +11,8 @@
 #   -q      Quality measure
 #   -Q      Quality measure, ran over the output file (the output file (.out) should exist!)
 #   -t      Time algorithm (cannot be used in combination with -R)
-#   -nv     Run visualization, but do not display the image
+#   -nv     Run visualization, but do not display the image, instead view the output
+#   -nl     Run visualization, but do not display the image, do not view the output
 #   -no     Do not run a real algorithm.
 
 # functions
@@ -69,6 +70,7 @@ export R=""
 export q=""
 export t=""
 export nv=""
+export nl=""
 export params=""
 
 for arg in $@
@@ -91,6 +93,9 @@ do
             ;;
         -nv)
             export nv="t"
+            ;;
+        -nl)
+            export nl="t"
             ;;
         -no)
             export params="allnoise"
@@ -127,7 +132,9 @@ fi
 if [ "$nv" = "t" ]; then
     less $file.out
 else
-    xdg-open output.png
+    if [ "$nl" != "t" ]; then
+        xdg-open output.png
+    fi
 fi
 
 # run and output quality measure

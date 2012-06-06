@@ -1,0 +1,28 @@
+#!/bin/sh
+
+#########
+# USAGE #
+#########
+# The program always makes normal output first, and visualizes it, unless it
+# is specified otherwise
+# Parameters:
+#   -r      Reachability plot
+#   -R      Reachability plot, but don't run the normal algorithm
+#   -q      Quality measure
+#   -Q      Quality measure, ran over the output file (the output file (.out) should exist!)
+#   -t      Time algorithm (cannot be used in combination with -R)
+#   -nv     Run visualization, but do not display the image
+#   -no     Do not run a real algorithm.
+
+# parameters
+export params="-nl -q -t"
+
+# run on the folder specified
+
+for f in $*
+do
+    if [ $(echo "$f" | awk -F . '{print $NF}') != "out" ]; then
+        echo "./cluster $params $f"
+        ./cluster $params $f
+    fi
+done
