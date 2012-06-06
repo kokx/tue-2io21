@@ -9,8 +9,10 @@
 #   -r      Reachability plot
 #   -R      Reachability plot, but don't run the normal algorithm
 #   -q      Quality measure
+#   -Q      Quality measure, ran over the output file (the output file (.out) should exist!)
 #   -t      Time algorithm (cannot be used in combination with -R)
-#   -nv     Run visualization, but do not display the image
+#   -nv     Run visualization, but do not display the image, instead view the output
+#   -nl     Run visualization, but do not display the image, do not view the output
 #   -no     Do not run a real algorithm.
 
 # functions
@@ -68,6 +70,7 @@ export R=""
 export q=""
 export t=""
 export nv=""
+export nl=""
 export params=""
 
 for arg in $@
@@ -82,11 +85,17 @@ do
         -q)
             export q="t"
             ;;
+        -Q)
+            export Q="t"
+            ;;
         -t)
             export t="t"
             ;;
         -nv)
             export nv="t"
+            ;;
+        -nl)
+            export nl="t"
             ;;
         -no)
             export params="allnoise"
@@ -104,26 +113,35 @@ fi
 
 cat $file | grep "clusters"
 
-# TODO: Implement quality measure
 if [ "$R" = "t" ]; then
     run_file $file -r | java reachability.Main
     xdg-open reach.png
+    exit
+fi
+if [ "$Q" = "t" ]; then
+    cat $file.out | java quality.Main
+    exit
+fi
+
+# run and visualize
+if [ "$t" = "t" ]; then
+    time_run_file $file $params | tee $file.out | java visualize.Main
 else
-    # run and visualize
-    if [ "$t" = "t" ]; then
-        time_run_file $file $params | tee $file.out | java visualize.Main
-    else
-        run_file $file $params | tee $file.out | java visualize.Main
-    fi
-    if [ "$nv" = "t" ]; then
-        less $file.out
-    else
+    run_file $file $params | tee $file.out | java visualize.Main
+fi
+if [ "$nv" = "t" ]; then
+    less $file.out
+else
+    if [ "$nl" != "t" ]; then
         xdg-open output.png
     fi
+fi
 
-    # run and plot reachability
-    if [ "$r" = "t" ]; then
-        run_file $file -r | java reachability.Main
-        xdg-open reach.png
-    fi
+# run and output quality measure
+cat $file.out | java quality.Main
+
+# run and plot reachability
+if [ "$r" = "t" ]; then
+    run_file $file -r | java reachability.Main
+    xdg-open reach.png
 fi

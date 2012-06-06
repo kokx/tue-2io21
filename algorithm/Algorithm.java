@@ -203,8 +203,8 @@ public abstract class Algorithm
 
         boolean changed = true;
 
-        // now loop until current.size() >= ci, or we don't change anything in a round
-        while (current.size() < ci && changed) {
+        // now loop until current.size() >= cj, or we don't change anything in a round
+        while (current.size() < cj && changed) {
             changed = false;
 
             Set<ClusterNode> newCurrent = new HashSet<ClusterNode>(current.size() * 2);
@@ -468,8 +468,8 @@ public abstract class Algorithm
              * if we can do this fast enough. Or we take the centroid, also
              * O(n), but with higher constants.
              */
-            int p1 = c1.getPoints().get(minClusterSize).getX();
-            int p2 = c2.getPoints().get(minClusterSize).getX();
+            int p1 = c1.getPoints().get(minClusterSize - 1).getX();
+            int p2 = c2.getPoints().get(minClusterSize - 1).getX();
 
             diff = (double) Math.abs(p1 - p2);
 

@@ -14,7 +14,7 @@ public class Optics extends Algorithm
 {
 
     // maximum epsilon
-    public final static double MAX_EPSILON_NEIGHBOURHOOD = 1000;
+    public final static double MAX_EPSILON_NEIGHBOURHOOD = 700;
     public final static double IDEAL_EPSILON_NEIGHBOURHOOD = 300;
 
     /**
