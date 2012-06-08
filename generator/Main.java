@@ -8,12 +8,12 @@ import model.*;
 class Main {
     Scanner sc;
 
-    public final static int CLUSTERS = 5;
-    public final static int CLUSTER_MIN_SIZE = 300;
-    public final static int CLUSTER_MAX_SIZE = 600;
+    public final static int CLUSTERS = 4;
+    public final static int CLUSTER_MIN_SIZE = 200;
+    public final static int CLUSTER_MAX_SIZE = 1200;
     public final static int CLUSTER_MIN_DENSITY = 5000;
     public final static int CLUSTER_MAX_DENSITY = 25000;
-    public final static int FIELD_SIZE = 10000;
+    public final static int FIELD_SIZE = 100000;
 
     public Main()
     {
@@ -23,10 +23,10 @@ class Main {
     void run()
     {
         int field = FIELD_SIZE;
-        Generator generator = new Generator(5000, 5000);
+        Generator generator = new Generator(8000, 8000);
 
         generator.createUniformNoise(100);
-        generator.generateGaussianNoise(10, 600, 300);
+        generator.generateGaussianNoise(10, 700, 900);
         field -= 300;
         field -= 1800;
 

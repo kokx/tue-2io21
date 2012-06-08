@@ -143,5 +143,7 @@ cat $file.out | java quality.Main
 # run and plot reachability
 if [ "$r" = "t" ]; then
     run_file $file -r | java reachability.Main
-    xdg-open reach.png
+    if [ "$nv" != "t" -a "$nl" != "t" ]; then
+        xdg-open reach.png
+    fi
 fi

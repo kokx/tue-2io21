@@ -139,7 +139,7 @@ class Main {
             System.out.println("Something went wrong");
         }
     }
-    
+
     Color getColor(int cluster)
     {
         if (cluster == 0 || ALL_BLACK) {
@@ -148,9 +148,9 @@ class Main {
 
         switch (cluster % 5) {
             case 0:
-                return Color.PINK;
-            case 1:
                 return Color.ORANGE;
+            case 1:
+                return new Color(255, 105, 180); // pink
             case 2:
                 return Color.GREEN;
             case 3:

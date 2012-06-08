@@ -14,15 +14,22 @@
 #   -nv     Run visualization, but do not display the image
 #   -no     Do not run a real algorithm.
 
+export r="-r"
 # parameters
-export params="-nl -q -t"
+export params="-nl -q -t $r"
 
 # run on the folder specified
 
 for f in $*
 do
     if [ $(echo "$f" | awk -F . '{print $NF}') != "out" ]; then
-        echo "./cluster $params $f"
-        ./cluster $params $f
+        if [ $(echo "$f" | awk -F . '{print $NF}') != "png" ]; then
+            echo "./cluster $params $f"
+            ./cluster $params $f
+            cp output.png $f.out.png
+            if [ "$r" = "-r" ]; then
+                cp reach.png $f.reach.png
+           fi
+        fi
     fi
 done
