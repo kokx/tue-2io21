@@ -9,11 +9,11 @@ class Main {
     Scanner sc;
 
     public final static int CLUSTERS = 5;
-    public final static int CLUSTER_MIN_SIZE = 300;
-    public final static int CLUSTER_MAX_SIZE = 600;
-    public final static int CLUSTER_MIN_DENSITY = 5000;
-    public final static int CLUSTER_MAX_DENSITY = 25000;
-    public final static int FIELD_SIZE = 10000;
+    public final static int CLUSTER_MIN_SIZE = 1000;
+    public final static int CLUSTER_MAX_SIZE = 5000;
+    public final static int CLUSTER_MIN_DENSITY = 500;
+    public final static int CLUSTER_MAX_DENSITY = 50000;
+    public final static int FIELD_SIZE = 150000;
 
     public Main()
     {
@@ -23,11 +23,11 @@ class Main {
     void run()
     {
         int field = FIELD_SIZE;
-        Generator generator = new Generator(5000, 5000);
+        Generator generator = new Generator(50000, 50000);
 
         generator.createUniformNoise(100);
-        generator.generateGaussianNoise(10, 600, 300);
-        field -= 300;
+        generator.generateGaussianNoise(10, 5000, 500);
+        field -= 500;
         field -= 1800;
 
         Random random = generator.getRandomGenerator();
