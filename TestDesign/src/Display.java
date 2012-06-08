@@ -93,8 +93,7 @@ class Display extends JPanel implements ActionListener, MouseWheelListener, Mous
 		System.out.println(points.size()+ " points");
 		for(Point i: points.values())
 		{
-			System.out.println(i.getX()*mulX);
-			System.out.println(i.getY()*mulY);
+			System.out.println(i.getX()*mulX+ " " +i.getY()*mulY);
 		}
 	}
 	
